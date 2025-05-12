@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyjy.web.mapper.CommentMapper">
+
+    <select id="page" resultType="com.yyjy.web.domain.vo.response.CommentRes">
+        select
+            id,
+            nick_name,
+            content,
+            ip_address,
+            UNIX_TIMESTAMP(create_time) as create_time,
+            is_author
+        from comment
+        where comment.article_id = #{req.articleId}
+    </select>
+</mapper>

@@ -1,0 +1,130 @@
+<script setup lang="ts">
+import {ChatbubbleOutline, EyeOutline, HeartOutline, TimeOutline} from "@vicons/ionicons5";
+import CommentSection from "@/views/article/commentSection.vue";
+import 'highlight.js/styles/rainbow.css'
+import {renderMarkdown} from '@/utils/markdown';
+
+const renderedMarkdown = ref(renderMarkdown(markdownText.value));
+
+const show = ref(false);
+const form = reactive({
+  name: '',
+  content: ''
+})
+
+onMounted(async () => {
+  // TODO 发送请求
+})
+</script>
+
+<template>
+  <div class="detail-container">
+    <div class="header">
+      <h1 class="header-title">ESNI和ECH</h1>
+      <div class="header-meta">
+        <div class="icon-list">
+          <n-icon size="18">
+            <TimeOutline/>
+          </n-icon>
+          <span v-text="'2025-02-27'"></span>
+          <n-icon size="18">
+            <EyeOutline/>
+          </n-icon>
+          <span v-text=" 1"></span>
+        </div>
+      </div>
+    </div>
+    <div class="content">
+      <div class="markdown-body markdown-content" v-html="renderedMarkdown"></div>
+    </div>
+    <div class="footer">
+      更新于 2025-02-27
+
+    </div>
+    <n-drawer v-model:show="show" :width="502">
+      <n-drawer-content closable>
+        <template #header>
+          <h3 style="padding-block: 10px">评论区 123</h3>
+        </template>
+        <template #default>
+          <CommentSection/>
+        </template>
+      </n-drawer-content>
+    </n-drawer>
+  </div>
+  <div class="article-panel">
+    <n-flex vertical :size="20">
+      <n-float-button position="relative" style="width: 45px; min-height: 45px">
+        <n-badge :value="9" :offset="[6, -8]" color="#aaa">
+          <n-icon>
+            <HeartOutline/>
+          </n-icon>
+        </n-badge>
+      </n-float-button>
+      <n-float-button @click="show = true" position="relative" style="width: 45px; min-height: 45px">
+        <n-badge :value="100" :max="99" :offset="[6, -8]" color="#aaa">
+          <n-icon>
+            <ChatbubbleOutline/>
+          </n-icon>
+        </n-badge>
+      </n-float-button>
+    </n-flex>
+  </div>
+</template>
+
+<style scoped>
+@import url('https://fonts.font.im/css?family=Roboto');
+* {
+  font-family: 'Roboto';
+}
+.detail-container {
+  width: 100%;
+  padding: 20px 80px;
+  white-space: pre;
+
+  .header {
+    margin-bottom: 30px;
+
+    .header-title {
+      padding-block: 10px;
+    }
+
+    .header-meta {
+      .icon-list {
+        display: flex;
+        align-items: center;
+        color: #666;
+        font-size: 14px;
+        cursor: auto;
+
+        span {
+          margin-right: 10px;
+        }
+
+        .n-icon {
+          margin-right: 5px;
+
+          &:first-child {
+            margin-left: 0;
+          }
+        }
+      }
+    }
+  }
+
+  .content {
+    font-size: 16px;
+    color: #4d4d4d;
+  }
+
+  .footer {
+    margin-top: 20px;
+    color: #aaa;
+  }
+}
+
+.article-panel {
+  position: fixed;
+  top: 220px;
+}
+</style>
