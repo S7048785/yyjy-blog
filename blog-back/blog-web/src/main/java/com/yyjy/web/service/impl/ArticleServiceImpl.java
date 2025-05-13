@@ -8,6 +8,7 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yyjy.common.constant.CacheConstant;
+import com.yyjy.common.context.BaseContext;
 import com.yyjy.common.utils.CacheUtil;
 import com.yyjy.web.dao.ArticleDao;
 import com.yyjy.web.domain.entity.Article;
@@ -64,6 +65,12 @@ public class ArticleServiceImpl implements ArticleService {
 
 	@Override
 	public ArticleRes getArticleById(Long id) {
-		return articleDao.getArticleById(id);
+		String ip = BaseContext.getCurrentId();
+		return articleDao.getArticleById(ip, id);
+	}
+
+	@Override
+	public void likeArticle(Long id) {
+
 	}
 }

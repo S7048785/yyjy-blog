@@ -11,6 +11,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @author yyjy
  * @since 2025-05-06
  */
-public interface PhotoMapper extends BaseMapper<Photo> {
+public interface PhotoMapper extends BaseMapper<Photo>{
 
 }

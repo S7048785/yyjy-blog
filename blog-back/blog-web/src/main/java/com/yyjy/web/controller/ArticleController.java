@@ -3,7 +3,6 @@ package com.yyjy.web.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yyjy.common.result.PageResult;
 import com.yyjy.common.result.Result;
-import com.yyjy.web.domain.entity.Article;
 import com.yyjy.web.domain.vo.request.ArticlePageReq;
 import com.yyjy.web.domain.vo.response.ArticleHotRes;
 import com.yyjy.web.domain.vo.response.ArticleCardRes;
@@ -12,10 +11,7 @@ import com.yyjy.web.service.ArticleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -35,7 +31,7 @@ public class ArticleController {
 	}
 
 	@Operation(summary = "分页获取文章列表")
-	@GetMapping("/page")
+	@GetMapping("/list")
 	public PageResult<ArticleCardRes> pageArticleList(ArticlePageReq req) {
 		Page<ArticleCardRes> page = articleService.pageArticleList(req);
 		return new PageResult<>(page.getTotal(), page.getRecords(), req.getCurrent(), req.getSize());
@@ -46,5 +42,12 @@ public class ArticleController {
 	public Result<ArticleRes> getArticleById(@PathVariable Long id) {
 		ArticleRes articleRes = articleService.getArticleById(id);
 		return Result.ok(articleRes);
+	}
+
+	@Operation(summary = "点赞文章")
+	@PostMapping("/like/{id}")
+	public Result<Void> likeArticle(@PathVariable Long id) {
+		articleService.likeArticle(id);
+		return Result.ok();
 	}
 }

@@ -1,5 +1,6 @@
 package com.yyjy.web.domain.vo.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -18,7 +19,11 @@ public class ArticleRes {
 	private String content;
 
 	@Schema(description = "创建时间")
-	private LocalDateTime createTime;
+	private Integer createTime;
+
+	@Schema(description = "更新时间")
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	private LocalDateTime updateTime;
 
 	@Schema(description = "浏览量")
 	private Long viewCount;
@@ -28,4 +33,7 @@ public class ArticleRes {
 
 	@Schema(description = "评论量")
 	private Long commentCount;
+
+	@Schema(description = "是否点赞")
+	private Boolean liked;
 }

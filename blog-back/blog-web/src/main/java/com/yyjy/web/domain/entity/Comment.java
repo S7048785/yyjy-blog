@@ -1,9 +1,7 @@
 package com.yyjy.web.domain.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.*;
+
 import java.time.LocalDateTime;
 import java.io.Serializable;
 
@@ -48,7 +46,7 @@ public class Comment implements Serializable {
     private String ipAddress;
 
     @Schema(description = "创建时间")
-    @TableField("create_time")
+    @TableField(condition = "create_time", fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     @Schema(description = "是否为作者")

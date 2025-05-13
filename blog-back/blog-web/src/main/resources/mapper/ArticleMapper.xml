@@ -22,7 +22,7 @@
             a.title as title,
             a.summary as summary,
             a.thumbnail as thumbnail,
-            a.create_time as create_time,
+            UNIX_TIMESTAMP(a.create_time) as create_time,
             a.view_count as view_count,
             (select count(*) from article_like as al where al.article_id = a.id) as like_count,
             (select count(*) from comment where comment.article_id = a.id) as comment_count,
@@ -46,14 +46,18 @@
             a.id as id,
             a.title as title,
             a.content as content,
-            a.create_time as create_time,
+            UNIX_TIMESTAMP(a.create_time) as create_time,
+            a.update_time as update_time,
             a.view_count as view_count,
             (select count(*) from article_like as al where al.article_id = a.id) as like_count,
-            (select count(*) from comment where comment.article_id = a.id) as comment_count
+            (select count(*) from comment where comment.article_id = a.id) as comment_count,
+            IF(MAX(al.id) IS NOT NULL, 1, 0) AS liked
         from article as a
-                 left join category as c on a.category_id = c.id
+        left join article_like as al on al.article_id = a.id
+         left join category as c on a.category_id = c.id
         <where>
             a.status = 0 and a.del_flag = 0 and a.id = #{id}
         </where>
+        group by a.id
     </select>
 </mapper>

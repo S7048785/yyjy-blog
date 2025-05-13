@@ -25,4 +25,6 @@ public interface ArticleService{
 	Page<ArticleCardRes> pageArticleList(ArticlePageReq req);
 
 	ArticleRes getArticleById(Long id);
+
+	void likeArticle(Long id);
 }

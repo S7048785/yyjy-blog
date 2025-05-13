@@ -20,5 +20,5 @@ public interface ArticleMapper extends BaseMapper<Article> {
 
 	Page<ArticleCardRes> page(Page<ArticleCardRes> page, ArticlePageReq req);
 
-	ArticleRes getArticleById(Long id);
+	ArticleRes getArticleById(String ip, Long id);
 }

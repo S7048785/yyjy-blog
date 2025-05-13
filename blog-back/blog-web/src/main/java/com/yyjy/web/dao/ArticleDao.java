@@ -30,7 +30,11 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, Article> {
 		return articleMapper.page(page, req);
 	}
 
-	public ArticleRes getArticleById(Long id) {
-		return articleMapper.getArticleById(id);
+	public ArticleRes getArticleById(String ip, Long id) {
+		return articleMapper.getArticleById(ip, id);
+	}
+
+	public synchronized void likeArticle(Long id) {
+		update(Wrappers.lambdaUpdate(Article.class).eq(Article::getId, id).setSql("like_count = like_count + 1"));
 	}
 }

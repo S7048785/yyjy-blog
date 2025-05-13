@@ -3,9 +3,9 @@ spring:
     name: blog-admin
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/yyjy-blog?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://47.111.151.165:3306/blog?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC
     username: root
-    password: 123456
+    password: ma7p28itxK38s4RB
 
 mybatis-plus:
   mapper-locations: classpath:mapper/*.xml
@@ -32,3 +32,9 @@ logging:
 springdoc:
   # 默认是false，需要设置为true
   default-flat-param-object: true
+
+minio:
+  endpoint: http://47.111.151.165:9000
+  access-key: 1Fl2gM0wwlvoWnXeHD94
+  secret-key: JtwECGOR5F71Bn3GiBh5s9gOlcXco299tYiMl3BU
+  bucket: blog

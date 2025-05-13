@@ -1,9 +1,7 @@
 package com.yyjy.web.domain.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.*;
+
 import java.time.LocalDateTime;
 import java.io.Serializable;
 
@@ -57,7 +55,7 @@ public class Article implements Serializable {
     @TableField("view_count")
     private Long viewCount;
 
-    @TableField("create_time")
+    @TableField(condition = "create_time", fill = FieldFill.INSERT)
     private String createTime;
 
     @TableField("update_time")
