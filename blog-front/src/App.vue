@@ -6,7 +6,7 @@ import { RouterView } from 'vue-router'
 <template>
 
   <div style="background-color: #fafafa">
-      <n-message-provider >
+      <n-message-provider max="1">
         <RouterView />
       </n-message-provider>
   </div>
@@ -19,5 +19,6 @@ import { RouterView } from 'vue-router'
   padding: 0;
   box-sizing: border-box;
 }
+
 
 </style>

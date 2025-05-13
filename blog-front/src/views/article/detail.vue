@@ -1,202 +1,64 @@
 <script setup lang="ts">
 import {ChatbubbleOutline, EyeOutline, HeartOutline, TimeOutline} from "@vicons/ionicons5";
 import CommentSection from "@/views/article/commentSection.vue";
-
+import request from '@/utils/request'
 import {useRoute} from 'vue-router'
 import {useCommentStore} from "@/stores/comment.ts";
-
+import type {Article} from "@/interface/res/Article.ts"
+import {useMessage} from 'naive-ui'
+const message = useMessage();
 const commentStore = useCommentStore();
 const route = useRoute()
 // 或仅预览模式（更轻量）
 
-import { MdPreview, MdCatalog, config } from 'md-editor-v3'
+import {MdPreview, MdCatalog, config} from 'md-editor-v3'
+
 const id = 'article-preview'; // 唯一ID，用于关联目录组件
 const scrollElement = document.documentElement;
 
-import { lineNumbers } from '@codemirror/view';
-const markdownText = ref(`
-引入logback的依赖（springboot项目中该依赖已传递）、配置文件logback.xml
+import {lineNumbers} from '@codemirror/view';
+import {formatRelativeTime} from "@/utils/day.js.ts";
 
-在非springboot项目中引入
-
-\`\`\`xml
-<dependency>
-\t<groupId>ch.qos.logback</groupId>
-    <artifactId>logback-classic</artifactId>
-    <version>1.4.11</version>
-</dependency>
-\`\`\`
-
-在resources下新增logback.xml配置文件
-
-\`\`\`xml
-<?xml version="1.0" encoding="UTF-8"?>
-<configuration>
-    <!-- 控制台输出 -->
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度  %logger{50}: 最长50个字符(超出.切割)  %msg：日志消息，%n是换行符 -->
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
-        </encoder>
-    </appender>
-
-    <!-- 日志输出级别 -->
-    <root level="debug">
-        <appender-ref ref="STDOUT" />
-    </root>
-</configuration>
-\`\`\`
-
-## 配置文件详解
-
-配置文件名：logback.xml
-
-该文件是对Logback日志框架输出的日志进行控制，可以来配置输出的格式、位置及日志开关等
-
-+ 常用的两种输出日志的位置：控制台、系统文件
-
-\`\`\`xml
-<!-- 控制台输出 -->
-<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">...</appender>
-
-<!-- 系统文件输出 -->
-<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">...</appender>
-\`\`\`
-
-+ 开启日志（ALL），关闭日志（OFF）
-
-\`\`\`xml
-<root level="ALL">
-\t<appender-ref ref="STDOUT"/>
-    <appender-ref ref="FILE"/>
-</root>
-\`\`\`
-
-
-
-\`\`\`yaml
-logging:
-  level:
-    com:
-      example:
-        mapper: debug
-        service: info
-        controller: info
-\`\`\`
-
-
-
-## 日志级别
-
-日志级别指的是日志信息的类型，日志都会分级别，常用的日志如下（级别由低到高）
-
-| 日志级别 | 说明 |
-| -------- | ---- |
-| trace | 追踪，记录程序运行轨迹（很少使用） |
-| dubug | 调试，记录程序调试过程中的信息 |
-| info | 记录一般信息，描述程序运行的关键事件，如网络连接、IO操作 |
-| warn | 警告信息，记录潜在有害的信息 |
-| error | 错误信息 |
-
-可以在配置文件中灵活的控制输出那些类型的日志
-
-\`\`\`xml
-<root level="info">
-\t<appender-ref ref="STDOUT"/>
-    <appender-ref ref="FILE"/>
-</root>
-\`\`\`
-
-
-
-定义日志记录对象Logger，记录日志
-
-\`\`\`java
-// LogTest.java
-public class LogTest {
-    \t\t\t\t\t\t\t\t\t\t\t\t\t// LogTest为当前类名
-    private static final Logger log = LoggerFactory.getLogger(LogTest.class);
-
-    @DeleteMapping("/")
-    public Result delete(Integer id) {
-        log.info("根据ID删除数据：{}", id);
-    }
-}
-\`\`\`
-
-或者在类前加上@Slf4j就可以直接使用log对象
-
-\`\`\`java
-@Slf4j
-@RestController
-public class XxxController {
-    @RequestMapping("/xxx")
-    public Result xxx() {
-        log.info("xxx");
-    }
-}
-\`\`\`
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-`);
-
-document.title = 'LogBack快速入门'
 const show = ref(false);
-const form = reactive({
-  name: '',
-  content: ''
-})
+
+const isLike = ref(false);
+const likeColor = computed(() => {
+  return isLike.value ? '#008c8c' : '#aaaaaa';
+});
+const likeActive = async () => {
+  if (isLike.value) {
+    message.info('您已经点赞过了', {duration: 1000});
+  }
+  isLike.value = true;
+  // 发送点赞请求
+}
+
+const data = ref<Article>([] as any);
 
 onMounted(async () => {
+  const res: any = await request.get('/article/' + route.params.id)
+  data.value = res.data;
+  document.title = res.data.title;
   await commentStore.getCommentList(route.params.id as string);
 })
 </script>
 
 <template>
   <div class="detail-container">
-    <div class="header">
-      <h1 class="header-title">Logbcak快速入门</h1>
+    <n-space vertical v-if="!data.content" style="width: 800px; margin-inline: auto; margin-top: 20px; padding-inline: 24px">
+      <n-skeleton text style="width: 40%" />
+      <n-skeleton text/>
+      <n-skeleton text style="width: 80%" />
+      <n-skeleton text style="width: 60%" />
+    </n-space>
+    <div v-else class="header">
+      <h1 class="header-title" v-text="data.title"></h1>
       <div class="header-meta">
         <div class="icon-list">
           <n-icon size="18">
             <TimeOutline/>
           </n-icon>
-          <span v-text="'2025-02-27'"></span>
+          <span v-text="formatRelativeTime(data.createTime)"></span>
           <n-icon size="18">
             <EyeOutline/>
           </n-icon>
@@ -204,43 +66,49 @@ onMounted(async () => {
         </div>
       </div>
     </div>
+
     <div class="content">
       <MdPreview
           :editorId="id"
-          :modelValue="markdownText"
+          :modelValue="data.content"
           :editorConfig="{
             extensions: [lineNumbers()]
           }"
       />
     </div>
     <div class="footer">
-      更新于 2025-02-27
+      更新于 {{ data.updateTime }}
 
     </div>
-    <n-drawer  v-model:show="show" :block-scroll="false" :default-width="400">
-      <n-drawer-content closable >
+    <n-drawer v-model:show="show" :block-scroll="false" :default-width="400">
+      <n-drawer-content closable>
         <template #header>
-          <h4 style="padding-block: 10px">评论 <span style="font-size: 16px">12</span></h4>
+          <h4 style="padding-block: 10px">评论 <span style="font-size: 16px" v-text="data.commentCount"></span></h4>
         </template>
         <template #default>
-          <CommentSection />
+          <CommentSection/>
         </template>
       </n-drawer-content>
     </n-drawer>
 
     <div class="article-panel">
       <n-flex vertical :size="20">
-        <n-float-button position="relative" style="width: 45px; min-height: 45px">
-          <n-badge :value="9" :offset="[6, -8]" color="#aaa">
-            <n-icon>
-              <HeartOutline/>
+        <n-float-button @click="likeActive" position="relative" style="width: 50px; min-height: 50px">
+          <n-badge :value="data.likeCount" :offset="[6, -8]" :color="likeColor">
+            <n-icon size="24">
+              <svg id="Glyph" :fill="likeColor" viewBox="0 0 32 32" xml:space="preserve" xmlns="http://www.w3.org/2000/svg"
+                   xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M29.845,17.099l-2.489,8.725C26.989,27.105,25.804,28,24.473,28H11c-0.553,0-1-0.448-1-1V13  c0-0.215,0.069-0.425,0.198-0.597l5.392-7.24C16.188,4.414,17.05,4,17.974,4C19.643,4,21,5.357,21,7.026V12h5.002  c1.265,0,2.427,0.579,3.188,1.589C29.954,14.601,30.192,15.88,29.845,17.099z" id="XMLID_254_"></path>
+                <path
+                    d="M7,12H3c-0.553,0-1,0.448-1,1v14c0,0.552,0.447,1,1,1h4c0.553,0,1-0.448,1-1V13C8,12.448,7.553,12,7,12z   M5,25.5c-0.828,0-1.5-0.672-1.5-1.5c0-0.828,0.672-1.5,1.5-1.5c0.828,0,1.5,0.672,1.5,1.5C6.5,24.828,5.828,25.5,5,25.5z"
+                    id="XMLID_256_"></path></svg>
             </n-icon>
           </n-badge>
         </n-float-button>
-        <n-float-button @click="show = true" position="relative" style="width: 45px; min-height: 45px">
-          <n-badge :value="100" :max="99" :offset="[6, -8]" color="#aaa">
-            <n-icon>
-              <ChatbubbleOutline/>
+        <n-float-button @click="show = true" position="relative" style="width: 50px; min-height: 50px">
+          <n-badge :value="data.commentCount" :max="999" :offset="[6, -8]" color="#aaa">
+            <n-icon size="24">
+              <svg fill="#aaa" t="1747151202384" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="7151" width="200" height="200"><path d="M512 0c282.763636 0 512 229.236364 512 512 0 141.405091-72.797091 258.606545-165.469091 351.278545l55.482182 89.693091c19.176727 30.999273-2.792727 71.028364-39.237818 71.028364H512C229.236364 1024 0 794.763636 0 512S229.236364 0 512 0zM254.138182 465.454545a65.163636 65.163636 0 1 0 0 130.327273 65.163636 65.163636 0 0 0 0-130.327273z m516.189091-9.30909a65.163636 65.163636 0 1 0 0 130.327272 65.163636 65.163636 0 0 0 0-130.327272z m-253.44 0a65.163636 65.163636 0 1 0 0 130.327272 65.163636 65.163636 0 0 0 0-130.327272z" p-id="7152"></path></svg>
+              <!--              <ChatbubbleOutline/>-->
             </n-icon>
           </n-badge>
         </n-float-button>
@@ -250,7 +118,7 @@ onMounted(async () => {
 
   <div class="article-navigation">
     <h3>目 录</h3>
-    <MdCatalog :editorId="id" :scrollElement="scrollElement" />
+    <MdCatalog :editorId="id" :scrollElement="scrollElement"/>
   </div>
 
 </template>
@@ -263,6 +131,7 @@ onMounted(async () => {
   @media (max-width: 768px) {
     padding: 20px;
   }
+
   .header {
     margin-bottom: 30px;
 
@@ -300,7 +169,8 @@ onMounted(async () => {
   }
 
   .footer {
-    margin-top: 20px;
+    float: right;
+    margin-top: 50px;
     color: #aaa;
   }
 
@@ -314,10 +184,12 @@ onMounted(async () => {
     @media (max-width: 768px) {
       display: none;
     }
+
   }
 }
+
 :deep(.n-drawer-body) {
-  .n-drawer-body-content-wrapper{
+  .n-drawer-body-content-wrapper {
     &::-webkit-scrollbar {
       display: none; /* 隐藏滚动条 */
     }
@@ -326,18 +198,18 @@ onMounted(async () => {
 }
 
 
-
 .article-navigation {
-  top: 180px;
+  top: 15px;
   right: 40px;
   position: fixed;
   width: 200px;
-  padding: 20px 0;
+  padding: 20px;
   min-height: 150px;
   background-color: #fff;
   @media (max-width: 1500px) {
     display: none;
   }
+
   h3 {
     margin-left: auto;
     margin-right: auto;
@@ -348,23 +220,25 @@ onMounted(async () => {
     width: 80%;
     word-spacing: 10px;
   }
-    :deep(.md-editor-catalog-active) {
-      span {
+
+  /*:deep(.md-editor-catalog-active) {
+    span {
+      color: #18c28d
+    }
+  }*/
+
+  :deep(.md-editor-catalog-indicator) {
+    background-color: #18c28d;
+  }
+
+  :deep(.md-editor-catalog-link) {
+    span {
+      &:hover {
         color: #18c28d
       }
-    }
 
-    :deep(.md-editor-catalog-indicator) {
-      background-color: #18c28d;
+      margin-left: 10px;
     }
-
-    :deep(.md-editor-catalog-link) {
-      span {
-        &:hover {
-          color: #18c28d
-        }
-        margin-left: 10px;
-      }
-    }
+  }
 }
 </style>

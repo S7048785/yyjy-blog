@@ -39,15 +39,13 @@ const getArticleList = async () => {
 }
 
 onMounted(async () => {
-  // emitter.on('toggleLoading', () => {loading.value = !loading.value})
-  // await new Promise(resolve => setTimeout(resolve, 1000))
   await getArticleList()
 })
 </script>
 
 <template>
   <div class="article-container">
-    <n-space vertical v-if="!data.length" style="margin-top: 20px; padding-inline: 24px">
+    <n-space vertical v-if="!data.length" style="width: 800px; margin-inline: auto; margin-top: 20px; padding-inline: 24px">
       <n-skeleton text style="width: 40%" />
       <n-skeleton text/>
       <n-skeleton text style="width: 80%" />
@@ -205,7 +203,6 @@ onMounted(async () => {
       padding: 8px 30px;
       border-radius: 8px;
       border: none;
-      //box-shadow: 0px 0px 1px 1px rgba(107, 239, 118, 0.49);
       &:hover {
         background-color: #01d1d1;
       }

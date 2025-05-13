@@ -1,7 +1,7 @@
 const intervals = {
 	year: 31536000,
 	month: 2592000,
-	week: 604800,
+	// week: 604800,
 	day: 86400,
 	hour: 3600,
 	minute: 60,
@@ -13,7 +13,7 @@ const intervals = {
  * @param timestamp 目标时间的时间戳（秒秒数）
  * @returns 相对时间描述字符串
  */
-export function formatRelativeTime(timestamp: number) {
+export function formatRelativeTime(timestamp: number | string) {
 	// 当前时间对象
 	const now = Date.now() / 1000;
 
