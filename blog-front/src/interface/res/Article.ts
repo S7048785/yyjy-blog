@@ -4,7 +4,7 @@ export interface ArticleCard {
 	title: string;
 	summary: string;
 	thumbnail: string;
-	createTime: string;
+	createTime: number;
 	viewCount: number;
 	commentCount: number;
 	likeCount: number;

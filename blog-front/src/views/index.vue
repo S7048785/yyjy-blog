@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import {type MenuOption, useMessage} from "naive-ui";
 import { SearchOutline, LogoGithub} from "@vicons/ionicons5"
-import {RouterLink} from "vue-router";
+import {RouterLink, useRoute} from "vue-router";
 import {emitter} from "@/utils/emitter.ts";
-
 const message = useMessage()
 
-const activeKey = ref<string>();
+const route = useRoute();
 const menuOptions: MenuOption[] = [
   {
     label: () =>
@@ -61,6 +60,8 @@ const menuOptions: MenuOption[] = [
     key: 'about'
   },
 ]
+const activeKey = ref<string>(route.name);
+
 </script>
 
 <template>
@@ -124,8 +125,9 @@ const menuOptions: MenuOption[] = [
   min-height: 100vh;
   display: flex;
   background-color: #fff;
-  padding-inline: 50px;
+  //padding-inline: 50px;
   flex-direction: column;
+
 
   .header {
     display: flex;
@@ -133,11 +135,10 @@ const menuOptions: MenuOption[] = [
     justify-content: space-between;
     //background-color: beige;
     min-height: 80px;
-    padding-block: 30px;
+    padding: 30px;
 
     .header-center {
       text-align: center;
-
       .n-menu {
         box-shadow: 0px 7px 10px 0px #eee;
         border-radius: 25px;
@@ -166,8 +167,9 @@ const menuOptions: MenuOption[] = [
   }
 
   .content {
+    position: relative;
     flex: 1;
-    min-height: 60vh;
+    //min-height: 60vh;
   }
 
 }

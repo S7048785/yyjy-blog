@@ -227,25 +227,27 @@ onMounted(async () => {
         </template>
       </n-drawer-content>
     </n-drawer>
+
+    <div class="article-panel">
+      <n-flex vertical :size="20">
+        <n-float-button position="relative" style="width: 45px; min-height: 45px">
+          <n-badge :value="9" :offset="[6, -8]" color="#aaa">
+            <n-icon>
+              <HeartOutline/>
+            </n-icon>
+          </n-badge>
+        </n-float-button>
+        <n-float-button @click="show = true" position="relative" style="width: 45px; min-height: 45px">
+          <n-badge :value="100" :max="99" :offset="[6, -8]" color="#aaa">
+            <n-icon>
+              <ChatbubbleOutline/>
+            </n-icon>
+          </n-badge>
+        </n-float-button>
+      </n-flex>
+    </div>
   </div>
-  <div class="article-panel">
-    <n-flex vertical :size="20">
-      <n-float-button position="relative" style="width: 45px; min-height: 45px">
-        <n-badge :value="9" :offset="[6, -8]" color="#aaa">
-          <n-icon>
-            <HeartOutline/>
-          </n-icon>
-        </n-badge>
-      </n-float-button>
-      <n-float-button @click="show = true" position="relative" style="width: 45px; min-height: 45px">
-        <n-badge :value="100" :max="99" :offset="[6, -8]" color="#aaa">
-          <n-icon>
-            <ChatbubbleOutline/>
-          </n-icon>
-        </n-badge>
-      </n-float-button>
-    </n-flex>
-  </div>
+
   <div class="article-navigation">
     <h3>目 录</h3>
     <MdCatalog :editorId="id" :scrollElement="scrollElement" />
@@ -258,6 +260,9 @@ onMounted(async () => {
 .detail-container {
   width: 100%;
   padding: 20px 80px;
+  @media (max-width: 768px) {
+    padding: 20px;
+  }
   .header {
     margin-bottom: 30px;
 
@@ -291,11 +296,24 @@ onMounted(async () => {
   .content {
     font-size: 16px;
     color: #4d4d4d;
+    width: calc(100%);
   }
 
   .footer {
     margin-top: 20px;
     color: #aaa;
+  }
+
+  .article-panel {
+    position: fixed;
+    top: 220px;
+    margin-left: -9rem;
+    @media (max-width: 1140px) {
+      margin-left: -4rem;
+    }
+    @media (max-width: 768px) {
+      display: none;
+    }
   }
 }
 :deep(.n-drawer-body) {
@@ -304,13 +322,11 @@ onMounted(async () => {
       display: none; /* 隐藏滚动条 */
     }
   }
+
 }
 
-.article-panel {
-  position: fixed;
-  top: 220px;
-  left: 190px;
-}
+
+
 .article-navigation {
   top: 180px;
   right: 40px;
@@ -319,6 +335,9 @@ onMounted(async () => {
   padding: 20px 0;
   min-height: 150px;
   background-color: #fff;
+  @media (max-width: 1500px) {
+    display: none;
+  }
   h3 {
     margin-left: auto;
     margin-right: auto;

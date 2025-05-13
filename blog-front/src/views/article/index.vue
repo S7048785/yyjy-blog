@@ -2,55 +2,52 @@
 import {TimeOutline, EyeOutline, ChatbubbleOutline, HeartOutline} from '@vicons/ionicons5'
 import {emitter} from "@/utils/emitter.ts";
 import type {ArticleCard} from "@/interface/res/Article.ts";
+import request from "@/utils/request.ts"
+import {formatRelativeTime} from "@/utils/day.js.ts";
 const router = useRouter()
 const loading = ref(true)
 
-const data: ArticleCard[] = [
-  {
-    id: '1',
-    title: '文章标题',
-    summary: '文章摘要',
-    thumbnail: '/src/assets/img/127783680.jpg',
-    createTime: '3天前',
-    viewCount: 200,
-    likeCount: 7,
-    commentCount: 5,
-    tags: ['Java', 'SpringBoot', 'Kotlin']
-  },
-  {
-    id: '2',
-    title: '文章标题',
-    summary: '文章摘要',
-    thumbnail: '/src/assets/img/127783680.jpg',
-    createTime: '3天前',
-    viewCount: 200,
-    likeCount: 7,
-    commentCount: 5,
-    tags: ['标签1', '标签2', '标签3']
-  },
-  {
-    id: '3',
-    title: '文章标题',
-    summary: '文章摘要',
-    thumbnail: '/src/assets/img/127783680.jpg',
-    createTime: '3天前',
-    viewCount: 200,
-    likeCount: 7,
-    commentCount: 5,
-    tags: ['标签1', '标签2', '标签3']
+const data = ref<ArticleCard[]>([])
+
+const page = reactive({
+  current: 1,
+  size: 10,
+})
+
+const hasMore = ref(true);
+
+const getArticleList = async () => {
+  loading.value = true
+
+  try {
+    const res: any = await request.get('/article/list', {
+      params: {
+        current: page.current,
+        size: page.size,
+      }
+    })
+    page.current++
+    data.value.push(...res.records)
+
+    if (res.records.length === data.value.length) {
+      hasMore.value = false
+      return
+    }
+  } finally {
+    loading.value = false
   }
-]
+}
 
 onMounted(async () => {
-  emitter.on('toggleLoading', () => {loading.value = !loading.value})
-  await new Promise(resolve => setTimeout(resolve, 1000))
-  loading.value = false
+  // emitter.on('toggleLoading', () => {loading.value = !loading.value})
+  // await new Promise(resolve => setTimeout(resolve, 1000))
+  await getArticleList()
 })
 </script>
 
 <template>
   <div class="article-container">
-    <n-space vertical v-if="loading" style="margin-top: 20px; padding-inline: 24px">
+    <n-space vertical v-if="!data.length" style="margin-top: 20px; padding-inline: 24px">
       <n-skeleton text style="width: 40%" />
       <n-skeleton text/>
       <n-skeleton text style="width: 80%" />
@@ -69,7 +66,7 @@ onMounted(async () => {
               <div class="meta" >
                 <div class="icon-list" @click.stop>
                   <n-icon size="18"><EyeOutline/></n-icon> {{ item.viewCount}}
-                  <n-icon size="18"><TimeOutline/></n-icon> {{ item.createTime}}
+                  <n-icon size="18"><TimeOutline/></n-icon> {{ formatRelativeTime(item.createTime)}}
                   <n-icon size="18"><HeartOutline/></n-icon> {{item.likeCount}}
                   <n-icon size="18"><ChatbubbleOutline/></n-icon> {{ item.commentCount}}
                 </div>
@@ -84,6 +81,10 @@ onMounted(async () => {
           </template>
         </n-card>
       </div>
+    </div>
+    <div class="footer" v-show="!loading">
+      <n-button @click="getArticleList" :disabled="loading" v-if="hasMore">查看更多</n-button>
+      <p v-else style="color: #666">没有更多了</p>
     </div>
   </div>
 </template>
@@ -191,6 +192,25 @@ onMounted(async () => {
             }
           }
         }
+      }
+    }
+  }
+  .footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .n-button {
+      background-color: #02bdbd;
+      color: #fff;
+      padding: 8px 30px;
+      border-radius: 8px;
+      border: none;
+      //box-shadow: 0px 0px 1px 1px rgba(107, 239, 118, 0.49);
+      &:hover {
+        background-color: #01d1d1;
+      }
+      &:active {
+        background-color: rgb(35, 147, 147);
       }
     }
   }
