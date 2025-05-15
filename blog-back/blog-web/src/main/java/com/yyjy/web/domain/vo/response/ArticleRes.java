@@ -33,7 +33,4 @@ public class ArticleRes {
 
 	@Schema(description = "评论量")
 	private Long commentCount;
-
-	@Schema(description = "是否点赞")
-	private Boolean liked;
 }

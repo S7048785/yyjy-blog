@@ -50,4 +50,17 @@ public class ArticleController {
 		articleService.likeArticle(id);
 		return Result.ok();
 	}
+
+	@Operation(summary = "文章阅读量自增")
+	@PostMapping("/view/{id}")
+	public Result<Void> viewArticle(@PathVariable Long id) {
+		articleService.viewArticle(id);
+		return Result.ok();
+	}
+
+	@Operation(summary = "文章是否已点赞")
+	@GetMapping("/liked-status/{id}")
+	public Result<Boolean> isLiked(@PathVariable Long id) {
+		return Result.ok(articleService.isLiked(id));
+	}
 }

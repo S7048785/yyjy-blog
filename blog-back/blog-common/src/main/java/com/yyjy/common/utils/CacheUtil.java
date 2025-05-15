@@ -15,6 +15,31 @@ public class CacheUtil {
 	@Autowired
 	private StringRedisTemplate redisTemplate;
 
+	public void deleteKey(String key) {
+		redisTemplate.delete(key);
+	}
+
+	/**
+	 * 尝试获取锁
+	 * @param key
+	 * @return
+	 */
+	public boolean tryLock(String key) {
+		Boolean flag = redisTemplate
+				.opsForValue()
+				.setIfAbsent(key, "1", 10, TimeUnit.SECONDS);
+		// 防止flag为null 引起空指针异常
+		return Boolean.TRUE.equals(flag);
+	}
+
+	/**
+	 * 解锁
+	 * @param key
+	 */
+	public void unlock(String key) {
+		redisTemplate.delete(key);
+	}
+
 	public void setStr(String key, String value) {
 		redisTemplate.opsForValue().set(key, value);
 	}
@@ -27,8 +52,14 @@ public class CacheUtil {
 		return redisTemplate.opsForValue().get(key);
 	}
 
+
 	public void setHash(String key, String hashKey, String value) {
 		redisTemplate.opsForHash().put(key, hashKey, value);
+		redisTemplate.expire(key, 1, TimeUnit.DAYS);
+	}
+
+	public void increment(String key, String hashKey, long increment) {
+		redisTemplate.opsForHash().increment(key, hashKey, increment);
 	}
 
 	public String getHash(String key, String hashKey) {
@@ -40,16 +71,35 @@ public class CacheUtil {
 	}
 
 	/**
-	 * 批量设置有序集合
+	 * 获取有序集合
+	 * @param key
+	 * @param start
+	 * @param count
+	 * @return
+	 */
+	public Collection<String> getSortedSetByScore(String key, long start, long offset, long count) {
+		return redisTemplate.opsForZSet().reverseRangeByScore(key, 0, start, offset, count);
+	}
+
+	public Long getSortedSetCount (String key) {
+		return redisTemplate.opsForZSet().size(key);
+	}
+
+	/**
+	 * 设置有序集合
 	 * @param key
 	 * @param value
+	 * @param score
 	 */
-	public void setSortedSet(String key, Set<ZSetOperations.TypedTuple<String> > value) {
+	public void setSortedSetByScore(String key, String value, double score) {
+		redisTemplate.opsForZSet().add(key, value, score);
+		redisTemplate.expire(key, 1, TimeUnit.HOURS);
+	}
 
+	public void setSortedSetByScore(String key, Set<ZSetOperations.TypedTuple<String>> value) {
 		redisTemplate.opsForZSet().add(key, value);
+		redisTemplate.expire(key, 1, TimeUnit.HOURS);
 	}
 
-	public Collection<String> getSortedSet(String key, long start, long end) {
-		return redisTemplate.opsForZSet().range(key, start, end);
-	}
+
 }

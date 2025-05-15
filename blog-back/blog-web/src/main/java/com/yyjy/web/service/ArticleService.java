@@ -27,4 +27,8 @@ public interface ArticleService{
 	ArticleRes getArticleById(Long id);
 
 	void likeArticle(Long id);
+
+	void viewArticle(Long id);
+
+	Boolean isLiked(Long id);
 }

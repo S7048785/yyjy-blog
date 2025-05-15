@@ -1,10 +1,7 @@
 package com.yyjy.web.domain.vo.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -29,9 +26,6 @@ public class ArticleCardRes {
 
 	@Schema(description = "点赞量")
 	private Long likeCount;
-
-	@Schema(description = "评论量")
-	private Long commentCount;
 
 	@Schema(description = "标签")
 	private List<String> tags;

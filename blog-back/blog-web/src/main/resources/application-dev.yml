@@ -6,6 +6,19 @@ spring:
     url: jdbc:mysql://47.111.151.165:3306/blog?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC
     username: root
     password: ma7p28itxK38s4RB
+  data:
+    redis:
+      host: localhost
+      # 端口
+      port: 6379
+      # 指定使用Redis的哪个数据库，Redis服务启动后默认有16个数据库，编号分别是从0到15
+      database: 0
+      lettuce:
+        pool:
+          max-active: 8 # 最大连接
+          max-idle: 8 # 最大空闲连接
+          min-idle: 0 # 最小空闲连接
+          max-wait: 1000 # 连接等待时间
 
 mybatis-plus:
   mapper-locations: classpath:mapper/*.xml

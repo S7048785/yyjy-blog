@@ -12,4 +12,6 @@ public class ArticlePageReq {
 	private Integer current = 1;
 	@Schema(description = "每页数量")
 	private Integer size = 10;
+	@Schema(description = "最大时间戳")
+	private Long max = System.currentTimeMillis() / 1000;
 }
