@@ -74,8 +74,8 @@ onMounted(async () => {
           <div v-text="item.content" class="text">
           </div>
           <div class="meta">
-            <span class="item" v-text="formatRelativeTime(item.createTime)"></span>
             <span class="item" v-text="item.ipAddress"></span>
+            <span class="item" v-text="formatRelativeTime(item.createTime)"></span>
           </div>
         </div>
       </div>

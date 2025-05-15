@@ -60,7 +60,7 @@ const menuOptions: MenuOption[] = [
     key: 'about'
   },
 ]
-const activeKey = ref<string>(route.name);
+const activeKey = ref<string>(route.name as string);
 
 </script>
 

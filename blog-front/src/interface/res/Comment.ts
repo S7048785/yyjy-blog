@@ -5,5 +5,5 @@ export interface Comment {
 	content: string;
 	ipAddress: string;
 	isAuthor: number;
-	createTime: string;
+	createTime: number;
 }

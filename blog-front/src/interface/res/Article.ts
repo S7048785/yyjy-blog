@@ -6,7 +6,6 @@ export interface ArticleCard {
 	thumbnail: string;
 	createTime: number;
 	viewCount: number;
-	commentCount: number;
 	likeCount: number;
 	tags: string[];
 }
@@ -15,8 +14,8 @@ export interface Article {
 	id: string;
 	title: string;
 	content: string;
-	createTime: string;
-	updateTime: string;
+	createTime: number;
+	updateTime: Date;
 	viewCount: number;
 	commentCount: number;
 	likeCount: number;

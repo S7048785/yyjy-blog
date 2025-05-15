@@ -6,7 +6,7 @@ import { RouterView } from 'vue-router'
 <template>
 
   <div style="background-color: #fafafa">
-      <n-message-provider max="1">
+      <n-message-provider :max="1">
         <RouterView />
       </n-message-provider>
   </div>
