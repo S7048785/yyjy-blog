@@ -1,5 +1,6 @@
 package com.yyjy.web.dao;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yyjy.web.domain.entity.Comment;
@@ -9,6 +10,8 @@ import com.yyjy.web.mapper.CommentMapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class CommentDao extends ServiceImpl <CommentMapper, Comment>{
 
@@ -16,7 +19,11 @@ public class CommentDao extends ServiceImpl <CommentMapper, Comment>{
 	private CommentMapper commentMapper;
 
 
-	public Page<CommentRes> page(Page<CommentRes> commentResPage, CommentPageReq req) {
-		return commentMapper.page(commentResPage, req);
+	public List<CommentRes> page(long current, long size, CommentPageReq req) {
+		return commentMapper.page(current, size, req);
+	}
+
+	public long count(CommentPageReq req) {
+		return count(Wrappers.lambdaQuery(Comment.class).eq(Comment::getArticleId, req.getArticleId()).isNull(Comment::getParentId));
 	}
 }

@@ -4,9 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import java.time.LocalDateTime;
-
-
 @Data
 public class ArticleRes {
 	@Schema(description = "文章id")
@@ -19,11 +16,11 @@ public class ArticleRes {
 	private String content;
 
 	@Schema(description = "创建时间")
-	private Integer createTime;
+	private String createTime;
 
 	@Schema(description = "更新时间")
 	@JsonFormat(pattern = "yyyy-MM-dd")
-	private LocalDateTime updateTime;
+	private String updateTime;
 
 	@Schema(description = "浏览量")
 	private Long viewCount;

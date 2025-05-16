@@ -45,6 +45,18 @@ public class Comment implements Serializable {
     @TableField("ip_address")
     private String ipAddress;
 
+    @Schema(description = "回复的昵称")
+    @TableField("reply_nick_name")
+    private String replyNickName;
+
+    @Schema(description = "父评论id")
+    @TableField("parent_id")
+    private Long parentId;
+
+    @Schema(description = "根评论id")
+    @TableField("root_parent_id")
+    private Long rootParentId;
+
     @Schema(description = "创建时间")
     @TableField(condition = "create_time", fill = FieldFill.INSERT)
     private LocalDateTime createTime;
@@ -56,6 +68,4 @@ public class Comment implements Serializable {
     @Schema(description = "删除标志（0代表未删除，1代表已删除）")
     @TableField("del_flag")
     private Integer delFlag;
-
-
 }

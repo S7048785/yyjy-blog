@@ -5,6 +5,6 @@ import lombok.Data;
 @Data
 public class CommentPageReq {
 	private long articleId;
-	private int current = 1;
-	private int size = 5;
+	private long current = 1L;
+	private long size = 5L;
 }

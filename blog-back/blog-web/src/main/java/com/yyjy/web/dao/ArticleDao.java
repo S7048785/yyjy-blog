@@ -30,8 +30,8 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, Article> {
 		return articleMapper.page(page, req);
 	}
 
-	public ArticleRes getArticleById(String ip, Long id) {
-		return articleMapper.getArticleById(ip, id);
+	public ArticleRes getArticleById(Long id) {
+		return articleMapper.getArticleById(id);
 	}
 
 	public synchronized void likeArticle(Long id) {

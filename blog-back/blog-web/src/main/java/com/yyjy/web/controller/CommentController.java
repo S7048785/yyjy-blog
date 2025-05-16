@@ -25,8 +25,7 @@ public class CommentController {
 	@Operation(summary = "分页获取评论列表")
 	@GetMapping("/list")
 	public PageResult<CommentRes> list(CommentPageReq req) {
-		Page<CommentRes> res = commentService.list(req);
-		return new PageResult<>(res);
+		return commentService.list(req);
 	}
 
 	@Operation(summary = "创建评论")

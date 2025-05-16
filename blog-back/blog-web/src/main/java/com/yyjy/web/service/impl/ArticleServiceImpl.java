@@ -102,7 +102,7 @@ public class ArticleServiceImpl implements ArticleService {
 			boolean b = cacheUtil.tryLock(CacheConstant.CACHE_ARTICLE_LOCK + id);
 			if (b) {
 				try {
-					ArticleRes articleRes = articleDao.getArticleById(ip, id);
+					ArticleRes articleRes = articleDao.getArticleById(id);
 					// 异步存入redis
 					CompletableFuture.runAsync(() -> {
 						cacheUtil.setStr(CacheConstant.CACHE_ARTICLE_DETAIL + id, JSONUtil.toJsonStr(articleRes), 60 * 60);
@@ -154,6 +154,10 @@ public class ArticleServiceImpl implements ArticleService {
 					.eq(Article::getId, id)
 					.setSql("view_count = view_count + 1"));
 
+			// 更新redis
+			ArticleRes a = articleDao.getArticleById(id);
+			cacheUtil.delSortedSetByScore(CacheConstant.CACHE_ARTICLE_LIST, JSONUtil.toJsonStr(a));
+			cacheUtil.setSortedSetByScore(CacheConstant.CACHE_ARTICLE_LIST, JSONUtil.toJsonStr(a), Double.parseDouble(a.getCreateTime()));
 			// TODO 查询文章卡片，更新redis
 //			ArticleRes article = articleDao.getArticleById(id);
 //			article.setViewCount(article.getViewCount() + 1);
@@ -166,7 +170,9 @@ public class ArticleServiceImpl implements ArticleService {
 
 	@Override
 	public Boolean isLiked(Long id) {
-		// TODO 查询redis
-		return null;
+		if (articleLikeDao.exists(BaseContext.getCurrentId(), id)) {
+			return Boolean.TRUE;
+		}
+		return Boolean.FALSE;
 	}
 }

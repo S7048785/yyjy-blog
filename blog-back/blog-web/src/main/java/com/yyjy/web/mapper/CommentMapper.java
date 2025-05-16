@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.yyjy.web.domain.vo.request.CommentPageReq;
 import com.yyjy.web.domain.vo.response.CommentRes;
 
+import java.util.List;
+
 /**
  * <p>
  * 评论表 Mapper 接口
@@ -16,5 +18,5 @@ import com.yyjy.web.domain.vo.response.CommentRes;
  */
 public interface CommentMapper extends BaseMapper<Comment> {
 
-	Page<CommentRes> page(Page<CommentRes> commentResPage, CommentPageReq req);
+	List<CommentRes> page(long current, long size, CommentPageReq req);
 }

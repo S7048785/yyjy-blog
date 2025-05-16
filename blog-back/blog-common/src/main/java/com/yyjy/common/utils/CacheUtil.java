@@ -66,6 +66,7 @@ public class CacheUtil {
 		return (String) redisTemplate.opsForHash().get(key, hashKey);
 	}
 
+
 	public void setSortedSet(String key, String value, double score) {
 		redisTemplate.opsForZSet().add(key, value, score);
 	}
@@ -101,5 +102,7 @@ public class CacheUtil {
 		redisTemplate.expire(key, 1, TimeUnit.HOURS);
 	}
 
-
+	public void delSortedSetByScore(String key, String value) {
+		redisTemplate.opsForZSet().remove(key, value);
+	}
 }
