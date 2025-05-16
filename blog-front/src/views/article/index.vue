@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {TimeOutline, EyeOutline, ChatbubbleOutline} from '@vicons/ionicons5'
+import {TimeOutline, EyeOutline} from '@vicons/ionicons5'
 import type {ArticleCard} from "@/interface/res/Article.ts";
 import request from "@/utils/request.ts"
 import {formatRelativeTime} from "@/utils/day.js.ts";
@@ -10,7 +10,7 @@ const data = ref<ArticleCard[]>([] as any)
 
 const page = reactive({
   current: 1,
-  size: 10,
+  size: 5,
 })
 
 const hasMore = ref(true);
@@ -74,7 +74,7 @@ onMounted(async () => {
                 </div>
               </div>
             </div>
-            <a href="javascript: void(0)">
+            <a href="javascript: void(0)" v-show="item.thumbnail">
               <img :src="item.thumbnail" alt="">
             </a>
           </template>

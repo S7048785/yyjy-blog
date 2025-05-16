@@ -6,4 +6,8 @@ export interface Comment {
 	ipAddress: string;
 	isAuthor: number;
 	createTime: number;
+	parentId: string;
+	rootParentId: string;
+	replyNickName: string;
+	children: Comment[];
 }

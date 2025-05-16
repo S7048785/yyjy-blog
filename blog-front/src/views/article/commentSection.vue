@@ -74,8 +74,26 @@ onMounted(async () => {
           <div v-text="item.content" class="text">
           </div>
           <div class="meta">
-            <span class="item" v-text="item.ipAddress"></span>
             <span class="item" v-text="formatRelativeTime(item.createTime)"></span>
+            <span class="item" v-text="item.ipAddress"></span>
+          </div>
+        </div>
+        <div class="children">
+          <div class="comment-item" v-for="(item1, index) in (item.children)" :key="index">
+            <a class="avatar">
+              <img style="width: 40px; height: 40px;" :src="`/src/assets/img/avatar${!item1.isAuthor ? index % 5 + 1 : ''}.jpg`" alt="">
+            </a>
+            <div class="content">
+              <div class="name">
+                <span v-text="item1.nickName"></span>
+              </div>
+              <div v-text="item1.content" class="text">
+              </div>
+              <div class="meta">
+                <span class="item" v-text="formatRelativeTime(item1.createTime)"></span>
+                <span class="item" v-text="item1.ipAddress"></span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -184,9 +202,10 @@ onMounted(async () => {
       padding-left: 50px;
       font-size: 16px;
       position: relative;
-      border-bottom: 1px solid #eee;
-      margin-bottom: 20px;
-      padding-bottom: 10px;
+      padding-block: 10px;
+      .children {
+        margin-top: 8px;
+      }
       .avatar {
         position: absolute;
         left: 0;
