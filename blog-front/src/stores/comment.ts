@@ -28,16 +28,22 @@ export const useCommentStore = defineStore('comment', () => {
 		}
 	};
 
+	/**
+	 * 清空评论区
+	 */
 	const reset = () => {
 		commentList.value = [];
 		hasMore.value = true;
 		current = 1;
 	}
 
+	// 当前回复的评论索引
+	const replyIndex = ref('');
+
 	return {
 		commentList,
 		hasMore,
-
+		replyIndex,
 		getCommentList,
 		reset
 	}

@@ -30,6 +30,10 @@ const submit = () => {
   console.log(1)
 }
 
+// 显示评论和评论索引
+const showReply = ref(false);
+const showReplyIndex = ref(-1);
+
 const debounceFn = useDebounceFn( async () => {
   if (!commentStore.hasMore) {
     return
@@ -68,8 +72,9 @@ onMounted(async () => {
           <img style="width: 40px; height: 40px;" :src="`/src/assets/img/avatar${!item.isAuthor ? index % 5 + 1 : ''}.jpg`" alt="">
         </a>
         <div class="content">
-          <div class="name">
-            <span v-text="item.nickName"></span>
+          <div class="header">
+            <span class="nickname" v-text="item.nickName"></span>
+            <span class="reply">回复</span>
           </div>
           <div v-text="item.content" class="text">
           </div>
@@ -78,14 +83,18 @@ onMounted(async () => {
             <span class="item" v-text="item.ipAddress"></span>
           </div>
         </div>
+        <div class="reply" v-show="!showReply">
+        asd
+        </div>
         <div class="children">
           <div class="comment-item" v-for="(item1, index) in (item.children)" :key="index">
             <a class="avatar">
               <img style="width: 40px; height: 40px;" :src="`/src/assets/img/avatar${!item1.isAuthor ? index % 5 + 1 : ''}.jpg`" alt="">
             </a>
             <div class="content">
-              <div class="name">
-                <span v-text="item1.nickName"></span>
+              <div class="header">
+                <span class="nickname" v-text="item1.nickName"></span>
+                <span class="reply">回复</span>
               </div>
               <div v-text="item1.content" class="text">
               </div>
@@ -203,8 +212,23 @@ onMounted(async () => {
       font-size: 16px;
       position: relative;
       padding-block: 10px;
-      .children {
-        margin-top: 8px;
+      .content {
+        &:hover {
+            .header {
+              .reply {
+                display: block;
+              }
+            }
+
+        }
+        .header {
+          .reply {
+            display: none;
+            color: #aaa;
+            float: right;
+            font-size: 14px;
+          }
+        }
       }
       .avatar {
         position: absolute;

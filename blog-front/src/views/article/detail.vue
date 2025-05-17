@@ -111,13 +111,13 @@ onUnmounted(() => {
       更新于 {{ data.updateTime }}
 
     </div>
-    <n-drawer v-model:show="show" :block-scroll="false" :default-width="400">
+    <n-drawer v-model:show="show" :block-scroll="false" :default-width="500">
       <n-drawer-content closable>
         <template #header>
           <h4 style="padding-block: 10px">评论 <span style="font-size: 16px" v-text="data.commentCount"></span></h4>
         </template>
         <template #default>
-          <CommentSection/>
+          <comment-side></comment-side>
         </template>
       </n-drawer-content>
     </n-drawer>
@@ -144,7 +144,6 @@ onUnmounted(() => {
                     d="M512 0c282.763636 0 512 229.236364 512 512 0 141.405091-72.797091 258.606545-165.469091 351.278545l55.482182 89.693091c19.176727 30.999273-2.792727 71.028364-39.237818 71.028364H512C229.236364 1024 0 794.763636 0 512S229.236364 0 512 0zM254.138182 465.454545a65.163636 65.163636 0 1 0 0 130.327273 65.163636 65.163636 0 0 0 0-130.327273z m516.189091-9.30909a65.163636 65.163636 0 1 0 0 130.327272 65.163636 65.163636 0 0 0 0-130.327272z m-253.44 0a65.163636 65.163636 0 1 0 0 130.327272 65.163636 65.163636 0 0 0 0-130.327272z"
                     p-id="7152"></path>
               </svg>
-              <!--              <ChatbubbleOutline/>-->
             </n-icon>
           </n-badge>
         </n-float-button>

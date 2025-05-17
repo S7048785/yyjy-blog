@@ -2,7 +2,7 @@
 import {type MenuOption, useMessage} from "naive-ui";
 import { SearchOutline, LogoGithub} from "@vicons/ionicons5"
 import {RouterLink, useRoute} from "vue-router";
-import {emitter} from "@/utils/emitter.ts";
+import emitter from "@/utils/emitter.ts";
 const message = useMessage()
 
 const route = useRoute();

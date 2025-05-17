@@ -6,8 +6,19 @@ import {NaiveUiResolver} from "unplugin-vue-components/resolvers";
 import {fileURLToPath} from "node:url";
 import Components from 'unplugin-vue-components/vite'
 import AutoImport from 'unplugin-auto-import/vite'
+
+const back = process.env.VITE_APP_API_URL;
 // https://vite.dev/config/
 export default defineConfig({
+  server: {
+    proxy: {
+      '/api': {
+        target: back,
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
+    }
+  },
   plugins: [
     vue(),
     vueDevTools(),
@@ -28,7 +39,8 @@ export default defineConfig({
       dts: 'src/auto-imports.d.ts', // 生成类型声明文件
     }),
     Components({
-      resolvers: [NaiveUiResolver()]
+      resolvers: [NaiveUiResolver()],
+      dts: "src/components.d.ts"
     }),
   ],
 
