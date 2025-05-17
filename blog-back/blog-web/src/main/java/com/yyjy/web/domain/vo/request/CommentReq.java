@@ -7,6 +7,7 @@ public class CommentReq {
 	private Long articleId;
 	private String nickName;
 	private String content;
-	private String ipAddress;
-
+	private String replyNickName;
+	private Long parentId;
+	private Long rootParentId;
 }

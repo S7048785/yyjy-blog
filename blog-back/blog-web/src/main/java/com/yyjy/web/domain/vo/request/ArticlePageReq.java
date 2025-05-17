@@ -1,10 +1,14 @@
 package com.yyjy.web.domain.vo.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Schema(description = "文章分页请求对象")
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ArticlePageReq {
 	@Schema(description = "分类id")
 	private Long categoryId;

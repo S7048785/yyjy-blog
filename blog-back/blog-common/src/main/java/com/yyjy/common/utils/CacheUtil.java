@@ -1,5 +1,6 @@
 package com.yyjy.common.utils;
 
+import com.yyjy.common.constant.CacheConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
@@ -79,6 +80,7 @@ public class CacheUtil {
 	 * @return
 	 */
 	public Collection<String> getSortedSetByScore(String key, long start, long offset, long count) {
+		redisTemplate.expire(CacheConstant.CACHE_ARTICLE_LIST, 1, TimeUnit.HOURS);
 		return redisTemplate.opsForZSet().reverseRangeByScore(key, 0, start, offset, count);
 	}
 
@@ -94,15 +96,14 @@ public class CacheUtil {
 	 */
 	public void setSortedSetByScore(String key, String value, double score) {
 		redisTemplate.opsForZSet().add(key, value, score);
-		redisTemplate.expire(key, 1, TimeUnit.HOURS);
 	}
 
 	public void setSortedSetByScore(String key, Set<ZSetOperations.TypedTuple<String>> value) {
 		redisTemplate.opsForZSet().add(key, value);
-		redisTemplate.expire(key, 1, TimeUnit.HOURS);
 	}
 
-	public void delSortedSetByScore(String key, String value) {
-		redisTemplate.opsForZSet().remove(key, value);
+	public void updateSortedSetByScore(String key, String value, double score) {
+		redisTemplate.opsForZSet().removeRangeByScore(key, score, score);
+		redisTemplate.opsForZSet().add(key, value, score);
 	}
 }

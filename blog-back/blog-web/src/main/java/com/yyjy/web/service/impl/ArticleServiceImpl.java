@@ -24,6 +24,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 public class ArticleServiceImpl implements ArticleService {
@@ -36,6 +38,9 @@ public class ArticleServiceImpl implements ArticleService {
 
 	@Resource
 	private CacheUtil cacheUtil;
+
+	// 线程池
+	private static final ExecutorService CACHE_REBUILD_EXECUTOR = Executors.newFixedThreadPool(10);
 
 	@Override
 	public List<ArticleHotRes> hotArticleList() {
@@ -66,18 +71,22 @@ public class ArticleServiceImpl implements ArticleService {
 
 					if (CollUtil.isNotEmpty(articleCardResPage.getRecords())) {
 						// 异步存入redis
+
 						Page<ArticleCardRes> finalArticleCardResPage = articleCardResPage;
-						CompletableFuture.runAsync(() -> {
-							Set<ZSetOperations.TypedTuple<String>> set = new HashSet<>();
-							// 存入redis
-							finalArticleCardResPage.getRecords().forEach(item -> {
-								DefaultTypedTuple<String> articleCardResDefaultTypedTuple = new DefaultTypedTuple<>(JSONUtil.toJsonStr(item), Double.parseDouble(item.getCreateTime()));
-								set.add(articleCardResDefaultTypedTuple);
-							});
-							cacheUtil.setSortedSetByScore(CacheConstant.CACHE_ARTICLE_LIST, set);
+						CACHE_REBUILD_EXECUTOR.submit(() -> {
+								Set<ZSetOperations.TypedTuple<String>> set = new HashSet<>();
+								// 存入redis
+								finalArticleCardResPage.getRecords().forEach(item -> {
+									DefaultTypedTuple<String> articleCardResDefaultTypedTuple = new DefaultTypedTuple<>(JSONUtil.toJsonStr(item), Double.parseDouble(item.getCreateTime()));
+									set.add(articleCardResDefaultTypedTuple);
+								});
+								cacheUtil.setSortedSetByScore(CacheConstant.CACHE_ARTICLE_LIST, set);
 						});
-						return articleCardResPage;
+
+//						Page<ArticleCardRes> finalArticleCardResPage = articleCardResPage;
+
 					}
+					return articleCardResPage;
 				} finally {
 					// 释放锁
 					cacheUtil.unlock(CacheConstant.CACHE_ARTICLE_LIST_LOCK);
@@ -133,7 +142,7 @@ public class ArticleServiceImpl implements ArticleService {
 			// 更新文章详情
 			CompletableFuture.runAsync(() -> {
 				Article article = articleDao.getById(id);
-				cacheUtil.setSortedSetByScore(CacheConstant.CACHE_ARTICLE_LIST, JSONUtil.toJsonStr(article), Double.parseDouble(article.getCreateTime()));
+				cacheUtil.updateSortedSetByScore(CacheConstant.CACHE_ARTICLE_LIST, JSONUtil.toJsonStr(article), Double.parseDouble(article.getCreateTime()));
 			});
 		}
 
@@ -156,12 +165,10 @@ public class ArticleServiceImpl implements ArticleService {
 
 			// 更新redis
 			ArticleRes a = articleDao.getArticleById(id);
-			cacheUtil.delSortedSetByScore(CacheConstant.CACHE_ARTICLE_LIST, JSONUtil.toJsonStr(a));
-			cacheUtil.setSortedSetByScore(CacheConstant.CACHE_ARTICLE_LIST, JSONUtil.toJsonStr(a), Double.parseDouble(a.getCreateTime()));
+			cacheUtil.updateSortedSetByScore(CacheConstant.CACHE_ARTICLE_LIST, JSONUtil.toJsonStr(a), Double.parseDouble(a.getCreateTime()));
 			// TODO 查询文章卡片，更新redis
-//			ArticleRes article = articleDao.getArticleById(id);
-//			article.setViewCount(article.getViewCount() + 1);
-//			cacheUtil.setSortedSetByScore(CacheConstant.CACHE_ARTICLE_LIST, hash, Double.parseDouble(bean.getCreateTime()));
+			ArticleRes article = articleDao.getArticleById(id);
+			cacheUtil.setHash(CacheConstant.CACHE_ARTICLE_DETAIL, id.toString(), JSONUtil.toJsonStr(article));
 
 			cacheUtil.setHash(CacheConstant.CACHE_ARTICLE_VIEW_IP + id, ip, "1");
 		}
