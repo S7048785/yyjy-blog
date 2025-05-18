@@ -12,7 +12,7 @@ import java.util.List;
 public interface CommentService {
 	PageResult<CommentRes> list(CommentPageReq req);
 
-	void create(CommentReq req);
+	CommentRes create(CommentReq req);
 
 	void delete(Long id);
 }

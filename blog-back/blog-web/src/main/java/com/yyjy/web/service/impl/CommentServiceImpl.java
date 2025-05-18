@@ -9,16 +9,20 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.yyjy.common.constant.CacheConstant;
 import com.yyjy.common.context.BaseContext;
 import com.yyjy.common.result.PageResult;
+import com.yyjy.common.utils.CacheUtil;
 import com.yyjy.web.dao.CommentDao;
 import com.yyjy.web.domain.entity.Comment;
 import com.yyjy.web.domain.vo.request.CommentPageReq;
 import com.yyjy.web.domain.vo.request.CommentReq;
 import com.yyjy.web.domain.vo.response.ArticleCardRes;
 import com.yyjy.web.domain.vo.response.CommentRes;
+import com.yyjy.web.mapper.CommentMapper;
 import com.yyjy.web.service.CommentService;
 import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -26,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -35,6 +40,10 @@ public class CommentServiceImpl implements CommentService {
 
 	@Resource
 	private CommentDao commentDao;
+	@Autowired
+	private CacheUtil cacheUtil;
+	@Autowired
+	private CommentMapper commentMapper;
 
 	@Override
 	public PageResult<CommentRes> list(CommentPageReq req) {
@@ -46,6 +55,7 @@ public class CommentServiceImpl implements CommentService {
 		// 存入所有评论
 		for (CommentRes commentRes : list) {
 			if (commentRes.getParentId() == null) {
+				commentRes.setChildren(new ArrayList<>());
 				result.add(commentRes);
 			}
 			map.put(commentRes.getId(), commentRes);
@@ -54,20 +64,18 @@ public class CommentServiceImpl implements CommentService {
 		// 构建子评论
 		for (CommentRes commentRes : list) {
 			Long rootParentId = commentRes.getRootParentId();
+
 			if (rootParentId != null) {
 				CommentRes commentRes1 = map.get(rootParentId);
-				if (commentRes1.getChildren() == null) {
-					commentRes1.setChildren(new ArrayList<>());
-				}
 				commentRes1.getChildren().add(commentRes);
 			}
 		}
-		long total = commentDao.count(req);
+		long total = commentDao.total(req.getArticleId());
 		return new PageResult<>(total, result, req.getCurrent(), req.getSize());
 	}
 
 	@Override
-	public void create(CommentReq req) {
+	public CommentRes create(CommentReq req) {
 		Comment comment = BeanUtil.copyProperties(req, Comment.class);
 		comment.setCreateTime(LocalDateTime.now());
 		if ("陈九`".equals(req.getNickName().trim())) {
@@ -77,6 +85,14 @@ public class CommentServiceImpl implements CommentService {
 		comment.setIpAddress(getIpAddress(BaseContext.getCurrentId()));
 
 		commentDao.save(comment);
+
+		// 更新缓存
+		CompletableFuture.runAsync(() -> {
+			long count = commentDao.count(req.getArticleId());
+			cacheUtil.setHash(CacheConstant.CACHE_ARTICLE_DETAIL + req.getArticleId(), "commentCount", String.valueOf(count));
+		});
+
+		return BeanUtil.copyProperties(comment, CommentRes.class);
 	}
 
 	@Override
@@ -89,10 +105,14 @@ public class CommentServiceImpl implements CommentService {
 	 * 获取ip属地
 	 */
 	public String getIpAddress(String ip) {
+
+		if (!ReUtil.isMatch("\\d{1,3}:\\d{1,3}:\\d{1,3}:\\d{1,3}", ip)) {
+			return "未知";
+		}
+
 		Map<String, Object> query = Map.of("query", ip, "resource_id", 6006, "oe", "utf8");
 
 		String s = null;
-
 		try {
 			s = HttpUtil.get("https://opendata.baidu.com/api.php", query);
 		} catch (Exception e) {

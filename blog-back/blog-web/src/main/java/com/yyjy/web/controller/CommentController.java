@@ -30,8 +30,8 @@ public class CommentController {
 
 	@Operation(summary = "创建评论")
 	@PostMapping
-	public Result<Void> create(CommentReq req) {
-		commentService.create(req);
-		return Result.ok();
+	public Result<CommentRes> create(@RequestBody CommentReq req) {
+		CommentRes commentRes = commentService.create(req);
+		return Result.ok(commentRes);
 	}
 }

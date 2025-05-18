@@ -8,6 +8,8 @@ import com.yyjy.web.domain.vo.response.ArticleCardRes;
 import com.yyjy.web.domain.vo.response.ArticleRes;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 /**
  * <p>
  * 文章表 Mapper 接口
@@ -18,8 +20,9 @@ import org.apache.ibatis.annotations.Mapper;
  */
 public interface ArticleMapper extends BaseMapper<Article> {
 
-	Page<ArticleCardRes> page(Page<ArticleCardRes> page, ArticlePageReq req);
+	List<ArticleCardRes> list(long current, long size, ArticlePageReq req);
 
+	Page<ArticleCardRes> page(Page<ArticleCardRes> page, ArticlePageReq req);
 
 	ArticleRes getArticleById(Long id);
 }

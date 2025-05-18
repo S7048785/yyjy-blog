@@ -1,12 +1,13 @@
 package com.yyjy.common.utils;
 
-import com.yyjy.common.constant.CacheConstant;
+import org.checkerframework.common.value.qual.StringVal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -49,6 +50,10 @@ public class CacheUtil {
 		redisTemplate.opsForValue().set(key, value, timeout, TimeUnit.SECONDS);
 	}
 
+	public Boolean setIfAbsent(String key, String value) {
+		return redisTemplate.opsForValue().setIfAbsent(key, value, 1, TimeUnit.HOURS);
+	}
+
 	public String getStr(String key) {
 		return redisTemplate.opsForValue().get(key);
 	}
@@ -59,8 +64,20 @@ public class CacheUtil {
 		redisTemplate.expire(key, 1, TimeUnit.DAYS);
 	}
 
+	public void setHashAll(String key, Map<String, String> value) {
+		redisTemplate.opsForHash().putAll(key, value);
+		redisTemplate.expire(key, 10, TimeUnit.MINUTES);
+	}
+
 	public void increment(String key, String hashKey, long increment) {
 		redisTemplate.opsForHash().increment(key, hashKey, increment);
+	}
+
+	public Map<Object, Object> getHashAll(String key) {
+		if (redisTemplate.hasKey(key)) {
+			return redisTemplate.opsForHash().entries(key);
+		}
+		return null;
 	}
 
 	public String getHash(String key, String hashKey) {
@@ -80,7 +97,6 @@ public class CacheUtil {
 	 * @return
 	 */
 	public Collection<String> getSortedSetByScore(String key, long start, long offset, long count) {
-		redisTemplate.expire(CacheConstant.CACHE_ARTICLE_LIST, 1, TimeUnit.HOURS);
 		return redisTemplate.opsForZSet().reverseRangeByScore(key, 0, start, offset, count);
 	}
 

@@ -9,6 +9,6 @@ public class CacheConstant {
 	public static final String CACHE_CATEGORY = "category";
 	public static final String CACHE_ARTICLE_DETAIL = "article:detail:";
 
-	public static final String CACHE_ARTICLE_VIEW_IP = "article:view:ip:";
+	public static final String CACHE_ARTICLE_VIEW_ID = "article:view:id:";
 	public static final String CACHE_ARTICLE_VIEW_COUNT = "article:view:count:";
 }

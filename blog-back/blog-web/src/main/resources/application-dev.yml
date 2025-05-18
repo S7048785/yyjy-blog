@@ -9,7 +9,7 @@ spring:
     password: ma7p28itxK38s4RB
   data:
     redis:
-      host: localhost
+      host: 47.111.151.165
       # 端口
       port: 6379
       # 指定使用Redis的哪个数据库，Redis服务启动后默认有16个数据库，编号分别是从0到15
@@ -20,6 +20,7 @@ spring:
           max-idle: 8 # 最大空闲连接
           min-idle: 0 # 最小空闲连接
           max-wait: 1000 # 连接等待时间
+      password:  Yp3Zb65D3f7tP6KB
 
 mybatis-plus:
   mapper-locations: classpath:mapper/*.xml

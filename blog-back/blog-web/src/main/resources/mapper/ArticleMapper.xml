@@ -10,51 +10,80 @@
         <result property="createTime" column="create_time"/>
         <result property="viewCount" column="view_count"/>
         <result property="likeCount" column="like_count"/>
-        <collection property="tags" ofType="java.lang.String">
-            <result column="tag_name"/>
-        </collection>
+        <result property="tags" column="tag_name"/>
     </resultMap>
-
-    <select id="page" resultMap="ArticleCardMap">
+    <select id="list" resultMap="ArticleCardMap">
         select
-            a.id as id,
-            a.title as title,
-            a.summary as summary,
-            a.thumbnail as thumbnail,
-            UNIX_TIMESTAMP(a.create_time) as create_time,
-            a.view_count as view_count,
-            (select count(*) from article_like as al where al.article_id = a.id) as like_count,
-            t.name as tag_name
+        a.id as id,
+        a.title as title,
+        a.summary as summary,
+        a.thumbnail as thumbnail,
+        UNIX_TIMESTAMP(a.create_time) as create_time,
+        a.view_count as view_count,
+        (select count(*) from article_like as al where al.article_id = a.id) as like_count,
+        GROUP_CONCAT(t.name SEPARATOR ',') AS tag_name
         from article as a
-            left join category as c on a.category_id = c.id
-            left join article_tag as at on a.id = at.article_id
-            left join tag as t on at.tag_id = t.id
+        left join category as c on a.category_id = c.id
+        left join article_tag as at on a.id = at.article_id
+        left join tag as t on at.tag_id = t.id
         <where>
             a.status = 0 and a.del_flag = 0
             <if test="req.categoryId != null">
                 and a.category_id = #{req.categoryId}
             </if>
         </where>
+        group by a.id
         order by a.create_time desc
-
+        limit #{current},#{size}
     </select>
     <select id="getArticleById" resultType="com.yyjy.web.domain.vo.response.ArticleRes"
             parameterType="java.lang.Long">
-        select
-            a.id as id,
-            a.title as title,
-            a.content as content,
-            UNIX_TIMESTAMP(a.create_time) as create_time,
-            a.update_time as update_time,
-            a.view_count as view_count,
-            (select count(*) from article_like as al where al.article_id = a.id) as like_count,
-            (select count(*) from comment where comment.article_id = a.id) as comment_count
-        from article as a
-        left join article_like as al on al.article_id = a.id
-         left join category as c on a.category_id = c.id
-        <where>
-            a.status = 0 and a.del_flag = 0 and a.id = #{id}
-        </where>
-        GROUP BY a.id
+        SELECT
+        a.id AS id,
+        a.title AS title,
+        a.content AS content,
+        UNIX_TIMESTAMP(a.create_time) AS create_time,
+        a.update_time AS update_time,
+        a.view_count AS view_count,
+        MAX(IFNULL(al.like_count, 0)) AS like_count,  <!-- 添加 MAX 聚合函数 -->
+        MAX(IFNULL(c.comment_count, 0)) AS comment_count <!-- 添加 MAX 聚合函数 -->
+        FROM article a
+        LEFT JOIN (
+        SELECT article_id, COUNT(*) AS like_count
+        FROM article_like
+        GROUP BY article_id
+        ) al ON al.article_id = a.id
+        LEFT JOIN (
+        SELECT article_id, COUNT(*) AS comment_count
+        FROM comment
+        GROUP BY article_id
+        ) c ON c.article_id = a.id
+        LEFT JOIN category cat ON a.category_id = cat.id
+        WHERE a.status = 0 AND a.del_flag = 0 AND a.id = #{id}
+        GROUP BY a.id;
     </select>
+    <select id="page" resultType="com.yyjy.web.domain.vo.response.ArticleCardRes">
+        select
+        a.id as id,
+        a.title as title,
+        a.summary as summary,
+        a.thumbnail as thumbnail,
+        UNIX_TIMESTAMP(a.create_time) as create_time,
+        a.view_count as view_count,
+        (select count(*) from article_like as al where al.article_id = a.id) as like_count,
+        GROUP_CONCAT(t.name SEPARATOR ',') AS tag_name
+        from article as a
+        left join category as c on a.category_id = c.id
+        left join article_tag as at on a.id = at.article_id
+        left join tag as t on at.tag_id = t.id
+        <where>
+            a.status = 0 and a.del_flag = 0
+            <if test="req.categoryId != null">
+                and a.category_id = #{req.categoryId}
+            </if>
+        </where>
+        group by a.id
+        order by a.create_time desc
+    </select>
+
 </mapper>

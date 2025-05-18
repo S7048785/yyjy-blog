@@ -11,10 +11,12 @@ import com.yyjy.web.service.ArticleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @Tag(name = "文章管理")
 @RestController
 @RequestMapping("/article")
@@ -34,7 +36,7 @@ public class ArticleController {
 	@GetMapping("/list")
 	public PageResult<ArticleCardRes> pageArticleList(ArticlePageReq req) {
 		Page<ArticleCardRes> page = articleService.pageArticleList(req);
-		return new PageResult<>(page.getTotal(), page.getRecords(), req.getCurrent(), req.getSize());
+		return new PageResult<>(page);
 	}
 
 	@Operation(summary = "获取文章详情")

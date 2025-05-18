@@ -12,6 +12,8 @@ import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ArticleDao extends ServiceImpl<ArticleMapper, Article> {
 	@Resource
@@ -24,6 +26,10 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, Article> {
 						.eq(Article::getStatus, "1")
 						.orderByDesc(Article::getViewCount)
 		);
+	}
+
+	public List<ArticleCardRes> list(long current, long size, ArticlePageReq req) {
+		return articleMapper.list(current, size, req);
 	}
 
 	public Page<ArticleCardRes> page(Page<ArticleCardRes> page,  ArticlePageReq req) {

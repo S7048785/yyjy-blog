@@ -23,7 +23,12 @@ public class CommentDao extends ServiceImpl <CommentMapper, Comment>{
 		return commentMapper.page(current, size, req);
 	}
 
-	public long count(CommentPageReq req) {
-		return count(Wrappers.lambdaQuery(Comment.class).eq(Comment::getArticleId, req.getArticleId()).isNull(Comment::getParentId));
+	public long count(Long articleId) {
+		return count(Wrappers.lambdaQuery(Comment.class)
+				.eq(Comment::getArticleId, articleId));
+	}
+
+	public long total(Long articleId) {
+		return count(Wrappers.lambdaQuery(Comment.class).eq(Comment::getArticleId, articleId).isNull(Comment::getRootParentId));
 	}
 }

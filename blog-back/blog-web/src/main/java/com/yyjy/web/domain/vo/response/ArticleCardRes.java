@@ -28,5 +28,5 @@ public class ArticleCardRes {
 	private Long likeCount;
 
 	@Schema(description = "标签")
-	private List<String> tags;
+	private String tags;
 }
