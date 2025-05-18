@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {EyeOutline, TimeOutline} from "@vicons/ionicons5";
-import CommentSection from "@/views/article/commentSection.vue";
 import request from '@/utils/request'
 import {useRoute} from 'vue-router'
 import {useCommentStore} from "@/stores/comment.ts";
@@ -10,6 +9,7 @@ import {MdPreview, MdCatalog} from 'md-editor-v3'
 import {lineNumbers} from '@codemirror/view';
 import {formatRelativeTime} from "@/utils/day.js.ts";
 import {useWindowScroll} from '@vueuse/core'
+import emitter from "@/utils/emitter.ts";
 
 const {y} = useWindowScroll()
 const showButton = computed(() => y.value > 700)
@@ -66,6 +66,8 @@ onMounted(async () => {
     commentStore.getCommentList(route.params.id as string),
     // 浏览量+1
     request.post('/article/view/' + route.params.id)])
+
+  emitter.on('commentCountIncrement', () => data.value.commentCount++)
 })
 
 onUnmounted(() => {

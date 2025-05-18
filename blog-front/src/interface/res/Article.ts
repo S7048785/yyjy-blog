@@ -7,7 +7,7 @@ export interface ArticleCard {
 	createTime: number;
 	viewCount: number;
 	likeCount: number;
-	tags: string[];
+	tags: string;
 }
 
 export interface Article {

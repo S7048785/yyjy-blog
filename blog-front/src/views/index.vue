@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import {type MenuOption, useMessage} from "naive-ui";
-import { SearchOutline, LogoGithub} from "@vicons/ionicons5"
+import {type MenuOption} from "naive-ui";
+import { SearchOutline} from "@vicons/ionicons5"
 import {RouterLink, useRoute} from "vue-router";
 import emitter from "@/utils/emitter.ts";
-const message = useMessage()
 
 const route = useRoute();
 const menuOptions: MenuOption[] = [
@@ -152,16 +151,22 @@ const activeKey = ref<string>(route.name as string);
   }
 
   .footer {
-    border-top: 1px solid;
-    height: 50px;
+    height: 60px;
+    //width: 100vh;
     display: flex;
-    border-top: 1px solid #ccc;
     align-content: center;
     flex-wrap: wrap;
-    a {
-      margin-right: 10px;
-      .n-icon {
-        fill: #000;
+    margin-top: 50px;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    div {
+      width: 90vh;
+      margin-inline: auto;
+
+      a {
+        margin-right: 10px;
+        .n-icon {
+          fill: #000;
+        }
       }
     }
   }
@@ -169,7 +174,6 @@ const activeKey = ref<string>(route.name as string);
   .content {
     position: relative;
     flex: 1;
-    //min-height: 60vh;
   }
 
 }

@@ -21,7 +21,7 @@ const debounceFn = useDebounceFn( async () => {
 
 <template>
   <div class="comment-list" v-show="commentStore.commentList">
-    <comment-item :commentList="commentStore.commentList"></comment-item>
+    <comment-item :commentList="commentStore.commentList" :number="1"></comment-item>
     <div class="comment-footer" style="text-align: center">
       <div v-if="commentStore.hasMore" v-lazy="debounceFn" >{{ '加载中...'}}</div>
       <div v-else-if="commentStore.commentList.length !== 0"> {{'没有更多了'}}</div>

@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import request from "@/utils/request.ts"
+import type {Comment} from "@/interface/res/Comment.ts";
+
+const emit = defineEmits<{
+  publish: [Comment]
+}>();
 
 const {params} = defineProps<{
   params: {
     articleId: string;
     replyNickName?: string;
-    parentId?: string;
+    parentId?: string | null;
     rootParentId?: string;
   },
 }>()
@@ -36,16 +41,8 @@ const submit = async () => {
   if (form.name === '' || form.content === '') {
     return;
   }
-  console.log({
-    articleId: params.articleId,
-    nickName: form.name,
-    replyNickName: params.replyNickName,
-    content: form.content,
-    parentId: params.parentId,
-    rootParentId: params.rootParentId
-  })
-  return;
-  await request.post(
+
+  const data = await request.post(
       'comment',
       {
         articleId: params.articleId,
@@ -56,7 +53,8 @@ const submit = async () => {
         rootParentId: params.rootParentId
       }
   )
-  console.log(1)
+
+  emit('publish', data.data)
 }
 
 onDeactivated(() => {
