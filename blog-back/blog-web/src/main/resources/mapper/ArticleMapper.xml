@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.yyjy.web.mapper.ArticleMapper">
+<mapper namespace="com.yyjy.mapper.ArticleMapper">
 
-    <resultMap id="ArticleCardMap" type="com.yyjy.web.domain.vo.response.ArticleCardRes">
+    <resultMap id="ArticleCardMap" type="com.yyjy.domain.vo.response.ArticleCardRes">
         <id property="id" column="id"/>
         <result property="title" column="title"/>
         <result property="summary" column="summary"/>
@@ -32,11 +32,11 @@
                 and a.category_id = #{req.categoryId}
             </if>
         </where>
-        group by a.id
+        group by a.id, a.create_time
         order by a.create_time desc
         limit #{current},#{size}
     </select>
-    <select id="getArticleById" resultType="com.yyjy.web.domain.vo.response.ArticleRes"
+    <select id="getArticleById" resultType="com.yyjy.domain.vo.response.ArticleRes"
             parameterType="java.lang.Long">
         SELECT
         a.id AS id,
@@ -62,7 +62,7 @@
         WHERE a.status = 0 AND a.del_flag = 0 AND a.id = #{id}
         GROUP BY a.id;
     </select>
-    <select id="page" resultType="com.yyjy.web.domain.vo.response.ArticleCardRes">
+    <select id="page" resultMap="ArticleCardMap">
         select
         a.id as id,
         a.title as title,
@@ -82,7 +82,7 @@
                 and a.category_id = #{req.categoryId}
             </if>
         </where>
-        group by a.id
+        group by a.id, a.create_time
         order by a.create_time desc
     </select>
 
