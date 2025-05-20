@@ -7,6 +7,7 @@
         <result property="title" column="title"/>
         <result property="summary" column="summary"/>
         <result property="thumbnail" column="thumbnail"/>
+        <result property="isTop" column="is_top"/>
         <result property="createTime" column="create_time"/>
         <result property="viewCount" column="view_count"/>
         <result property="likeCount" column="like_count"/>
@@ -18,6 +19,7 @@
         a.title as title,
         a.summary as summary,
         a.thumbnail as thumbnail,
+        a.is_top as is_top,
         UNIX_TIMESTAMP(a.create_time) as create_time,
         a.view_count as view_count,
         (select count(*) from article_like as al where al.article_id = a.id) as like_count,
@@ -68,6 +70,7 @@
         a.title as title,
         a.summary as summary,
         a.thumbnail as thumbnail,
+        a.is_top as is_top,
         UNIX_TIMESTAMP(a.create_time) as create_time,
         a.view_count as view_count,
         (select count(*) from article_like as al where al.article_id = a.id) as like_count,
@@ -84,6 +87,22 @@
         </where>
         group by a.id, a.create_time
         order by a.create_time desc
+    </select>
+    <select id="getArticleCardById" resultType="com.yyjy.domain.vo.response.ArticleCardRes">
+        select
+            a.id as id,
+            a.title as title,
+            a.summary as summary,
+            a.thumbnail as thumbnail,
+            a.is_top as is_top,
+            UNIX_TIMESTAMP(a.create_time) as create_time,
+            a.view_count as view_count,
+            (select count(*) from article_like as al where al.article_id = a.id) as like_count,
+            GROUP_CONCAT(t.name SEPARATOR ',') AS tag_name
+        from article as a
+                 left join article_tag as at on a.id = at.article_id
+                 left join tag as t on at.tag_id = t.id
+        where a.id = #{id} and a.status = 0 and a.del_flag = 0;
     </select>
 
 </mapper>
