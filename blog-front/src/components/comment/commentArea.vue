@@ -58,7 +58,6 @@ const submit = async () => {
 }
 
 onDeactivated(() => {
-  // emit('toggleReply')
   console.log(1)
 })
 </script>

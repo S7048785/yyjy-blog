@@ -55,7 +55,7 @@ onMounted(async () => {
     </n-space>
         <div  class="article-list" v-else>
 
-      <transition-group  appear name="list" tag="div">
+      <transition-group appear name="list" tag="div">
         <div class="article-item" v-for="item in data" :key="item.id">
           <div class="article-card"><n-card :bordered="false" style="--n-color: none;">
             <template #default>
@@ -95,12 +95,13 @@ onMounted(async () => {
 
 <style scoped lang="less">
 .article-container {
-  width: 100%;
+  //width: 100%;
   .article-list {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
+    //display: flex;
+    //flex-direction: column;
+    //align-items: center;
+    margin-inline: auto;
+    width: 80%;
     .list-enter-from {
       opacity: 0;
       transform: translateY(70px);
@@ -114,7 +115,7 @@ onMounted(async () => {
 
       .article-card {
         padding-bottom: 20px;
-        width: 800px;
+        //width: 80%;
         box-sizing: border-box;
         margin-bottom: 20px;
         border-radius: 12px;
@@ -176,6 +177,9 @@ onMounted(async () => {
                 }
               }
               .tag {
+                @media(max-width: 768px) {
+                  display: none;
+                }
                 .n-tag {
                   background-color: #f2f3f5;
                   color: #8a919f;
@@ -189,13 +193,13 @@ onMounted(async () => {
             }
           }
           a {
-            width: 150px;
-            height: 100px;
-            overflow: hidden;
             border-radius: 15px;
             img {
-              height: 100%;
-              width: 100%;
+              @media(max-width: 768px) {
+                display: none;
+              }
+              width: 150px;
+              height: 100px;
               object-fit: cover;
               transition: .5s;
 

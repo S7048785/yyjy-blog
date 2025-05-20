@@ -3,7 +3,7 @@
 </script>
 
 <template>
-<div>animation</div>
+<div>Photo</div>
 </template>
 
 <style scoped>

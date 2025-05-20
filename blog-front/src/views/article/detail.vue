@@ -31,6 +31,8 @@ const scrollElement = document.documentElement;
 
 const show = ref(false);
 
+const innerWidth = window.innerWidth;
+
 const isLike = ref(false);
 
 const likeColor = computed(() => {
@@ -63,11 +65,13 @@ onMounted(async () => {
       isLike.value = res.data;
     }),
     // 获取评论列表
-    commentStore.getCommentList(route.params.id as string),
+    await commentStore.getCommentList(route.params.id as string),
     // 浏览量+1
     request.post('/article/view/' + route.params.id)])
 
   emitter.on('commentCountIncrement', () => data.value.commentCount++)
+
+
 })
 
 onUnmounted(() => {
@@ -113,8 +117,8 @@ onUnmounted(() => {
       更新于 {{ data.updateTime }}
 
     </div>
-    <n-drawer v-model:show="show" :block-scroll="false" :default-width="500">
-      <n-drawer-content closable>
+    <n-drawer v-model:show="show" :block-scroll="false" :default-width="innerWidth > 768 ? 500 : ''">
+      <n-drawer-content closable >
         <template #header>
           <h4 style="padding-block: 10px">评论 <span style="font-size: 16px" v-text="data.commentCount"></span></h4>
         </template>
@@ -125,7 +129,7 @@ onUnmounted(() => {
     </n-drawer>
 
     <div class="article-panel" v-show="data.id">
-      <n-flex vertical :size="20">
+      <n-flex vertical :size="30">
         <n-float-button @click="likeActive" position="relative" style="width: 50px; min-height: 50px">
           <n-badge :value="data.likeCount" :max="999" :offset="[6, -8]" :color="likeColor">
             <n-icon size="24">
@@ -159,7 +163,6 @@ onUnmounted(() => {
                     d="M128 128h768v85.333333H128V128z m384 110.336l-30.165333 30.165333-170.666667 170.666667-30.165333 30.165333L341.333333 529.664l30.165334-30.165333L469.333333 401.664V896h85.333334V401.664l97.834666 97.834667 30.165334 30.165333L742.997333 469.333333l-30.165333-30.165333-170.666667-170.666667L512 238.336z"
                     p-id="23964"></path>
               </svg>
-              <!--              <ChatbubbleOutline/>-->
             </n-icon>
           </n-badge>
         </n-float-button>
@@ -229,15 +232,21 @@ onUnmounted(() => {
     color: #aaa;
   }
 
+
+  :deep(.n-drawer) {
+    &.n-drawer--right-placemen {
+      width: 100vw !important;
+    }
+  }
+
   .article-panel {
+    top: 50%;
+    transform: translateY(-50%);
     position: fixed;
-    top: 220px;
     margin-left: -9rem;
     @media (max-width: 1140px) {
-      margin-left: -4rem;
-    }
-    @media (max-width: 768px) {
-      display: none;
+      left: 10px;
+      margin-left: 0;
     }
 
   }
@@ -255,9 +264,9 @@ onUnmounted(() => {
 
 .article-navigation {
   top: 15px;
+  width: 200px;
   right: 40px;
   position: fixed;
-  width: 200px;
   padding: 20px;
   min-height: 150px;
   background-color: #fff;
@@ -275,12 +284,6 @@ onUnmounted(() => {
     width: 80%;
     word-spacing: 10px;
   }
-
-  /*:deep(.md-editor-catalog-active) {
-    span {
-      color: #18c28d
-    }
-  }*/
 
   :deep(.md-editor-catalog-indicator) {
     background-color: #18c28d;

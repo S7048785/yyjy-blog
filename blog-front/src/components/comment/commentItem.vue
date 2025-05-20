@@ -41,7 +41,8 @@ const addComment = (data: Comment) => {
 <template>
   <div class="comment-item" v-for="(item, index) in commentList" :key="item.id">
     <a class="avatar">
-      <img style="width: 40px; height: 40px;" :src="`/src/assets/img/avatar${!item.isAuthor ? index % 5 + 1 : ''}.jpg`" alt="">
+      <img style="width: 40px; height: 40px;" :src="`/img/avatar${!item.isAuthor ? index % 5 + 1 : ''}.jpg`"
+        alt="">
     </a>
     <div class="content">
       <div class="header">
@@ -50,7 +51,8 @@ const addComment = (data: Comment) => {
         <span style="margin-left: 5px;" v-if="item.parentId !== null">
           回复 <span style="color: #008c8c;">@{{item.replyNickName}}</span>
         </span>
-        <n-button @click="replyActive(item.id)" :class="{show: commentStore.replyIndex === item.id}" text class="reply" v-text="commentStore.replyIndex === item.id ? '收起' : '回复'"></n-button>
+        <n-button @click="replyActive(item.id)" :class="{show: commentStore.replyIndex === item.id}" text class="reply"
+          v-text="commentStore.replyIndex === item.id ? '收起' : '回复'"></n-button>
       </div>
       <div v-text="item.content" class="text">
       </div>
@@ -59,7 +61,7 @@ const addComment = (data: Comment) => {
         <span class="item" v-text="item.ipAddress"></span>
       </div>
     </div>
-      <comment-area class="reply" v-if="commentStore.replyIndex === item.id" @publish="addComment" :params="{
+    <comment-area class="reply" v-if="commentStore.replyIndex === item.id" @publish="addComment" :params="{
         articleId: route.params.id as string,
         replyNickName: item.nickName,
         parentId: number === 1  ? null : item.id,

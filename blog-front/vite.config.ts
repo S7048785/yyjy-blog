@@ -7,13 +7,14 @@ import {fileURLToPath} from "node:url";
 import Components from 'unplugin-vue-components/vite'
 import AutoImport from 'unplugin-auto-import/vite'
 
-const back = process.env.VITE_APP_API_URL;
+const apiUrl = process.env.VITE_APP_API_URL;
 // https://vite.dev/config/
 export default defineConfig({
   server: {
+
     proxy: {
       '/api': {
-        target: back,
+        target: apiUrl,
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       }

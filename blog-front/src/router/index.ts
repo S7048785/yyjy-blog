@@ -29,11 +29,11 @@ const router = createRouter({
           }
         },
         {
-          path: 'animation',
-          name: 'animation',
-          component: () => import('@/views/animation/index.vue'),
+          path: 'photo',
+          name: 'photo',
+          component: () => import('@/views/photo/index.vue'),
           meta: {
-            title: 'Animation - 陈九'
+            title: 'Photo - 陈九'
           }
         },
         {

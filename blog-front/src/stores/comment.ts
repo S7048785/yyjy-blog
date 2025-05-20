@@ -22,7 +22,7 @@ export const useCommentStore = defineStore('comment', () => {
 		})
 		current++;
 		commentList.value.push(...res.records);
-		if (commentList.value.length === res.total) {
+		if (res.records.length < res.pageSize) {
 			hasMore.value = false;
 			return;
 		}
