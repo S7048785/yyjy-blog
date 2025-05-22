@@ -18,8 +18,6 @@ import java.util.List;
  */
 public interface ArticleService{
 
-	List<ArticleHotRes> hotArticleList();
-
 	Page<ArticleCardRes> pageArticleList(ArticlePageReq req);
 
 	Page<ArticleCardRes> pageCacheArticleList(ArticlePageReq req);

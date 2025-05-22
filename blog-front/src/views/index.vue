@@ -36,7 +36,9 @@ const routerList = [
 ]
 
 const activeKey = ref<string>(route.name as string);
-
+onMounted(() => {
+  console.log(route, router)
+})
 </script>
 
 <template>
@@ -52,7 +54,7 @@ const activeKey = ref<string>(route.name as string);
       </div>
       <div class="header-center">
         <router-link v-for="(item, index) in routerList"
-                     :to="`${item.path}`">
+                     :to="`${item.path}`" :class="{'title-hover': route.path === item.path}">
           <n-icon :component="item.icon" size="24"/>
           <span>{{ item.name }}</span>
         </router-link>
@@ -69,7 +71,6 @@ const activeKey = ref<string>(route.name as string);
       <router-view/>
     </div>
     <div class="footer">
-      <div>
         <a href="https://space.bilibili.com/310219346" target="_blank">
           <n-icon size="24">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48px" height="48px">
@@ -100,7 +101,6 @@ const activeKey = ref<string>(route.name as string);
             </svg>
           </n-icon>
         </a>
-      </div>
     </div>
   </div>
 </template>
@@ -119,8 +119,8 @@ const activeKey = ref<string>(route.name as string);
 
   .header {
     @media (max-width: 768px) {
-      padding: 65px 30px 0 30px;
-      margin-bottom: 50px;
+      padding: 75px 30px 0 30px;
+      margin-bottom: 20px;
     }
     display: flex;
     align-items: center;
@@ -140,35 +140,57 @@ const activeKey = ref<string>(route.name as string);
       display: flex;
       align-items: center;
       justify-content: space-evenly;
-      min-height: 50px;
       width: 75%;
       border-radius: 25px;
       box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.1);
       a {
+        &.title-hover {
+          transform: scale(1.1);
+          span {
+            color: transparent;
+            background: linear-gradient(to right, #008c8c, #18c28d);
+            background-clip: text;
+          }
+          .n-icon {
+            color: #008c8c;
+          }
+        }
         @media (max-width: 768px) {
           flex-direction: column;
           font-size: 1em;
         }
+        padding-block: 10px;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
         font-size: 1.2em;
         font-weight: bold;
+        color: #666;
+        transition: 0.2s;
         span {
           @media (max-width: 768px) {
             letter-spacing: 0;
           }
-          color: transparent;
-          background: linear-gradient(to right, #008c8c, #18c28d);
-          background-clip: text;
+
           letter-spacing: 5px;
         }
         .n-icon {
           @media (max-width: 768px) {
             margin-right: 0;
           }
-          color: #008c8c;
+
           margin-right: 10px;
+        }
+        &:hover {
+          transform: scale(1.1);
+          span {
+            color: transparent;
+            background: linear-gradient(to right, #008c8c, #18c28d);
+            background-clip: text;
+          }
+          .n-icon {
+            color: #008c8c;
+          }
         }
       }
     }
@@ -178,14 +200,11 @@ const activeKey = ref<string>(route.name as string);
     height: 60px;
     display: flex;
     align-content: center;
+    justify-content: center;
     flex-wrap: wrap;
     margin-top: 50px;
     border-top: 1px solid rgba(0, 0, 0, 0.05);
-
-    div {
-      width: 90vw;
-      margin-inline: auto;
-
+    padding-inline: 20px;
       a {
         margin-right: 10px;
 
@@ -193,7 +212,6 @@ const activeKey = ref<string>(route.name as string);
           fill: #000;
         }
       }
-    }
   }
 
   .content {

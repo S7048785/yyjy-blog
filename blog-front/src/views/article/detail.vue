@@ -117,7 +117,7 @@ onUnmounted(() => {
       更新于 {{ data.updateTime }}
 
     </div>
-    <n-drawer v-model:show="show" :block-scroll="false" :default-width="innerWidth > 768 ? 500 : ''">
+    <n-drawer v-model:show="show" :default-width="innerWidth > 768 ? 500 : ''">
       <n-drawer-content closable >
         <template #header>
           <h4 style="padding-block: 10px">评论 <span style="font-size: 16px" v-text="data.commentCount"></span></h4>

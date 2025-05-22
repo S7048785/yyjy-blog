@@ -18,15 +18,6 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, Article> {
 	@Resource
 	private ArticleMapper articleMapper;
 
-	public Page<Article> hotList(Page<Article> articlePage) {
-		return page(
-				articlePage,
-				Wrappers.lambdaQuery(Article.class)
-						.eq(Article::getStatus, "1")
-						.orderByDesc(Article::getViewCount)
-		);
-	}
-
 	public List<ArticleCardRes> list(long current, long size, ArticlePageReq req) {
 		return articleMapper.list(current, size, req);
 	}
@@ -43,7 +34,9 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, Article> {
 		return articleMapper.getArticleCardById(id);
 	}
 
-	public synchronized void likeArticle(Long id) {
-		update(Wrappers.lambdaUpdate(Article.class).eq(Article::getId, id).setSql("like_count = like_count + 1"));
+	@Override
+	public long count() {
+		return super.count(Wrappers.lambdaQuery(Article.class).eq(Article::getDelFlag, 0).eq(Article::getStatus, 0));
 	}
+
 }

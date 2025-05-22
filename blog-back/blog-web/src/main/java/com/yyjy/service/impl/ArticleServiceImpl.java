@@ -48,11 +48,6 @@ public class ArticleServiceImpl implements ArticleService {
 	@Autowired
 	private ApplicationEventPublisher applicationEventPub;
 	@Override
-	public List<ArticleHotRes> hotArticleList() {
-		return null;
-	}
-
-	@Override
 	public Page<ArticleCardRes> pageArticleList(ArticlePageReq req) {
 		Page<ArticleCardRes> articleCardResPage = new Page<>(req.getCurrent(), req.getSize());
 		return articleDao.page(articleCardResPage, req);
@@ -67,7 +62,7 @@ public class ArticleServiceImpl implements ArticleService {
 			// 缓存命中
 			if (CollUtil.isNotEmpty(sortedSetByScore)) {
 				List<ArticleCardRes> articleCardRes = JSONUtil.toList(sortedSetByScore.toString(), ArticleCardRes.class);
-				Long total = cacheUtil.getSortedSetCount();
+				Long total = articleDao.count();
 				return new Page<ArticleCardRes>(req.getCurrent(), req.getSize()).setRecords(articleCardRes).setTotal(total);
 			}
 			// 未命中，尝试获取锁

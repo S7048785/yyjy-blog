@@ -53,7 +53,7 @@ public class CommentServiceImpl implements CommentService {
 
 		// 存入所有评论
 		for (CommentRes commentRes : list) {
-			if (commentRes.getParentId() == null) {
+			if (commentRes.getRootParentId() == null) {
 				commentRes.setChildren(new ArrayList<>());
 				result.add(commentRes);
 			}

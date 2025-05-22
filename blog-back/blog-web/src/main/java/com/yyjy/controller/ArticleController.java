@@ -26,13 +26,6 @@ public class ArticleController {
 	@Resource
 	private ArticleService articleService;
 
-	@Operation(summary = "获取最热文章top10")
-	@GetMapping("/hot")
-	public Result<List<ArticleHotRes>> hotArticleList() {
-		List<ArticleHotRes> list = articleService.hotArticleList();
-		return Result.ok(list);
-	}
-
 	@Operation(summary = "分页获取文章列表")
 	@GetMapping("/list")
 	public PageResult<ArticleCardRes> pageArticleList(ArticlePageReq req) {
