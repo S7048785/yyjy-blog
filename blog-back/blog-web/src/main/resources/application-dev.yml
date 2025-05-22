@@ -5,12 +5,12 @@ spring:
     name: blog-web
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://47.111.151.165:3306/blog?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://${blog.ip}:3306/blog?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC
     username: root
     password: ma7p28itxK38s4RB
   data:
     redis:
-      host: 47.111.151.165
+      host: ${blog.ip}
       # 端口
       port: 6379
       # 指定使用Redis的哪个数据库，Redis服务启动后默认有16个数据库，编号分别是从0到15
@@ -50,7 +50,7 @@ springdoc:
   default-flat-param-object: true
 
 minio:
-  endpoint: http://47.111.151.165:9000
+  endpoint: http://${blog.ip}:9000
   access-key: 1Fl2gM0wwlvoWnXeHD94
   secret-key: JtwECGOR5F71Bn3GiBh5s9gOlcXco299tYiMl3BU
   bucket: blog
