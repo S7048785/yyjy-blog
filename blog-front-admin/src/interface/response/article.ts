@@ -1,4 +1,4 @@
-interface Article {
+export interface ArticleColumn {
 	id: number;
 	title: string;
 	category: string;

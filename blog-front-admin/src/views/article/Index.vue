@@ -1,56 +1,70 @@
 <script setup lang="ts">
-import {NTag, NButton} from "naive-ui"
-import {zhCN, dateZhCN} from 'naive-ui'; // 导入中文语言包
+import {NTag, NButton, zhCN, dateZhCN, type DataTableColumns} from "naive-ui"
+import {getArticleList, deleteArticle, deleteArticleBatch} from "@/api/article.ts";
+import {getCategoryList} from "@/api/category.ts";
+import request from "@/utils/request.ts";
+import type {ArticleCol} from "@/interface/request/article.ts";
+import type {ArticleColumn} from "@/interface/response/article.ts";
 
-
+// 新增和编辑数据的表单弹窗
+const showModal = ref(false);
+// 加载状态
+const loading = ref(false);
+// 消息
 const msg = useMessage();
+// 弹窗
+const dialog = useDialog()
 const formRef = ref(null);
-const categoryOptions = ref([
-	{
-		label: '技术',
-		value: '0',
-	},
-	{
-		label: '生活',
-		value: '1',
-	},
-	{
-		label: '日志',
-		value: '3',
-	},
-	{
-		label: '项目',
-		value: '4',
-	},
-	{
-		label: '其他',
-		value: '5',
-	}
+// 分类数据
+const categoryOptions = ref<any[]>([
+	// {
+	// 	label: '技术',
+	// 	value: '0',
+	// },
+	// {
+	// 	label: '生活',
+	// 	value: '1',
+	// },
+	// {
+	// 	label: '日志',
+	// 	value: '3',
+	// },
+	// {
+	// 	label: '项目',
+	// 	value: '4',
+	// },
+	// {
+	// 	label: '其他',
+	// 	value: '5',
+	// }
 ])
+// 选择分类时触发回调
+const searchCategory = async () => {
+  if (categoryOptions.value.length > 0) {
+    return;
+  }
+  loading.value = true;
+  (await getCategoryList()).data.forEach((item: any) => {
+    categoryOptions.value.push({
+      label: item.name,
+      value: item.id
+    })
+  })
+  loading.value = false
+}
+// 状态数据
 const statusOptions = ref([{label: '已发布', value: '0'}, {label: '草稿', value: '1'}])
 
 // 查询表单数据
-const formValue = reactive({
+const queryFormValue = reactive({
 	id: null,
 	title: null,
 	category: null,
 	tags: [],
-	date: [1746028800000, Date.now()],
+  date: [1746028800000, Date.now()],
 	status: null
-});
-
-const resetForm = () => {
-	formValue.id = null
-	formValue.title = null
-	formValue.category = null
-	formValue.tags = []
-	formValue.date = [1746028800000, Date.now()]
-	formValue.status = null
-}
-const queryData = () => {
-	//TODO 搜索
-}
-
+} as any);
+window.queryFormValue = queryFormValue
 // 表单校验规则
 const rules = {
 	id: {
@@ -63,21 +77,14 @@ const rules = {
 		message: '请输入文章标题',
 		trigger: ['input']
 	},
-	category: {
-		required: false,
-		message: '请输入文章分类',
-		trigger: ['input']
-	},
-	tags: {
-		required: false,
-		message: '请输入文章标签',
-		trigger: ['input']
-	},
-	date: {
-		required: true,
-		message: '请输入文章日期',
-		trigger: ['input']
-	},
+  tags: {
+    trigger: ['change'],
+    validator(rule: unknown, value: string[]) {
+      if (value.length > 3)
+        return new Error('不得超过四个标签')
+      return true
+    }
+  },
 	status: {
 		required: false,
 		message: '请输入文章状态',
@@ -96,7 +103,7 @@ const tableData = reactive({
 		{title: '分类', key: 'category'},
 		{
 			title: '标签', key: 'tags', render(row: any) {
-				return row.tags.map((tagKey: any) => {
+				return row.tags?.split(',').map((tagKey: any) => {
 					return h(
 							NTag,
 							{
@@ -126,9 +133,8 @@ const tableData = reactive({
 							tertiary: true,
 							size: 'small',
 							color: 'blue',
-							ghost: true,
-							class: 'border border-solid rounded-md',
-							onClick: actions.editRow
+							class: 'border border-solid rounded-md bg-transparent',
+							onClick: () => actions.editRow(row)
 						},
 						{default: () => '编辑'}
 				), h(
@@ -138,25 +144,24 @@ const tableData = reactive({
 							tertiary: true,
 							size: 'small',
 							color: 'red',
-							ghost: true,
-							class: 'border border-solid rounded-md',
-							onClick: actions.deleteRow
+							class: 'border border-solid rounded-md bg-transparent',
+							onClick: () => actions.deleteRow(row)
 						},
 						{default: () => '删除'}
 				)]
 			}
 		}
-	],
-	data: null,
+	] as any,
+	data: [],
 })
 
 // 分页数据
 const pagination = reactive({
 	page: 1,
 	pageCount: 1,
-	pageSize: 5,
+	pageSize: 10,
 	showSizePicker: true,
-	pageSizes: [5, 10, 20],
+	pageSizes: [10, 20],
 	onChange: (page: number) => {
 		pagination.page = page;
 	},
@@ -169,34 +174,81 @@ const pagination = reactive({
 	}
 })
 
-//  表格行键
-const rowKey = (row: any) => row.id;
 
-// 选中的行数据
-const checkedRowKeysRef = ref([]);
+// 表格行键 以id作为键
+const rowKey = (row: ArticleColumn) => row.id;
+
+// 选中的行数据 存储选中的文章的id
+const checkedRowKeysRef = ref<number[]>([]);
 
 // 监听选中行数据
-const handleCheck = (rowKeys: []) => {
+const handleCheck = (rowKeys: any) => {
 	checkedRowKeysRef.value = rowKeys
 }
 
+
 // 操作元素
 const actions = {
-	refresh: () => {
-		// TODO 刷新表格
-	},
+  queryData: async () => {
+    //TODO 搜索
+    loading.value = true
+    const res = await getArticleList(
+    {
+      id: queryFormValue.id,
+      title: queryFormValue.title,
+      category: queryFormValue.category,
+      tags: queryFormValue.tags,
+      date: queryFormValue.date,
+      status: queryFormValue.status
+    })
+    tableData.data = res.data
+    loading.value = false
+  },
+  resetForm: () => {
+    queryFormValue.id = null
+    queryFormValue.title = null
+    queryFormValue.category = null
+    queryFormValue.tags = []
+    queryFormValue.date = [new Date(1746028800000), new Date()]
+    queryFormValue.status = null
+  },
 	addRow: () => {
 		// TODO 跳转添加页面
+    showModal.value = true
 	},
 	editRow: (row: any) => {
 		// TODO 跳转编辑页面
 	},
-	deleteRow: (row: any) => {
-
-		// TODO 删除
+	deleteRow: async (row: ArticleColumn) => {
+    dialog.warning({
+      title: '警告',
+      content: `确定要删除 "${row.title}" 吗？`,
+      positiveText: '确定',
+      negativeText: '取消',
+      onPositiveClick: async () => {
+        if (await deleteArticle(row.id)) {
+          msg.success('删除成功');
+          await actions.queryData()
+        }
+      }
+    })
+    // await deleteArticle(row.id);
+    // msg.success('删除成功');
 	},
-	deleteRows: () => {
+	deleteRows: async () => {
 		// TODO 批量删除
+    dialog.warning({
+      title: '警告',
+      content: `确定要删除选中的 ${checkedRowKeysRef.value.length} 条数据吗？`,
+      positiveText: '确定',
+      negativeText: '取消',
+      onPositiveClick: async () => {
+        if (await deleteArticleBatch(checkedRowKeysRef.value)) {
+          msg.success('删除成功');
+          await actions.queryData()
+        }
+      }
+    })
 	}
 }
 
@@ -204,20 +256,13 @@ function rowClassName(row: any) {
 	return 'center'
 }
 
-onBeforeMount(() => {
-	// TODO 请求表数据
-	tableData.data = Array.from({length: 10}).fill(null).map((_, index) => {
-		return {
-			id: index,
-			title: '文章标题',
-			category: '生活',
-			tags: ['标签1', '标签2'],
-			date: '2021-01-01',
-			status: '草稿'
-		}
-	}) as any
-
+onBeforeMount(async () => {
+  loading.value = true
+  const res: any = await request.get('/article/list')
+  tableData.data = res.data
 	// TODO 请求分类数据
+
+  loading.value = false
 })
 </script>
 
@@ -227,7 +272,7 @@ onBeforeMount(() => {
 			<n-card title="搜索" class="md:mb-4" size="small">
 				<n-form
 						ref="formRef"
-						:model="formValue"
+						:model="queryFormValue"
 						:rules="rules"
 						label-placement="left"
 						:show-require-mark="false"
@@ -236,46 +281,52 @@ onBeforeMount(() => {
 					<n-grid cols="1 380:2 824:4" class="[&>*]:pr-8">
 						<n-grid-item>
 							<n-form-item label-width="auto" label="ID" path="id">
-								<n-input class="text-sm" v-model:value="formValue.id" placeholder="请输入ID"/>
+								<n-input class="text-sm" v-model:value="queryFormValue.id" placeholder="请输入ID"/>
 							</n-form-item>
 						</n-grid-item>
 						<n-grid-item>
 							<n-form-item label-width="auto" label="标题" path="title">
-								<n-input v-model:value="formValue.title" placeholder="请输入标题"/>
+								<n-input v-model:value="queryFormValue.title" placeholder="请输入标题"/>
 							</n-form-item>
 						</n-grid-item>
-						<n-grid-item>
-							<n-form-item label-width="auto" label="标签" path="tags">
-								<n-input v-model:value="formValue.tags" placeholder="请输入标签"/>
-							</n-form-item>
-						</n-grid-item>
-						<n-grid-item>
-							<n-form-item label-width="auto" label="日期" path="date">
-								<n-config-provider :locale="zhCN" :date-locale="dateZhCN">
-									<n-date-picker v-model:value="formValue.date" type="daterange" clearable/>
-								</n-config-provider>
-							</n-form-item>
-						</n-grid-item>
-						<n-grid-item>
-							<n-form-item label-width="auto" label="状态" path="status">
-								<n-select v-model:value="formValue.status" :options="statusOptions"
-													placeholder="请选择状态"></n-select>
-							</n-form-item>
-						</n-grid-item>
-						<n-grid-item>
-							<n-form-item label-width="auto" label="分类" path="category">
-								<n-select v-model:value="formValue.category" :options="categoryOptions"
-													placeholder="请选择分类"></n-select>
-							</n-form-item>
-						</n-grid-item>
+            <n-grid-item>
+              <n-form-item label-width="auto" label="状态" path="status">
+                <n-select v-model:value="queryFormValue.status" :options="statusOptions"
+                          placeholder="请选择状态"></n-select>
+              </n-form-item>
+            </n-grid-item>
+            <n-grid-item>
+              <n-form-item label-width="auto" label="分类" path="category">
+                <n-select v-model:value="queryFormValue.category"
+                          :options="categoryOptions"
+                          placeholder="请选择分类"
+                          :loading="loading"
+                          @focus="searchCategory"></n-select>
+              </n-form-item>
+            </n-grid-item>
+            <n-grid-item>
+              <n-form-item label-width="auto" label="日期" path="date">
+                <n-config-provider :locale="zhCN" :date-locale="dateZhCN">
+                  <n-date-picker @confirm="() => {
+                    console.log(queryFormValue.date)
+                  }" v-model:value="queryFormValue.date" type="daterange" clearable/>
+                </n-config-provider>
+              </n-form-item>
+            </n-grid-item>
+            <n-grid-item>
+            <n-form-item label-width="auto" label="标签" path="tags">
+              <n-dynamic-tags v-model:value="queryFormValue.tags" />
+            </n-form-item>
+          </n-grid-item>
 						<n-grid-item span="2">
 							<n-form-item class="flex justify-end">
 								<div>
-									<n-button @click="resetForm" class="mr-4 px-8 rounded-xl">重置</n-button>
-									<n-button @click="queryData" class="px-8 rounded-xl">搜索</n-button>
+									<n-button @click="actions.resetForm" class="mr-4 px-8 rounded-xl">重置</n-button>
+									<n-button @click="actions.queryData" class="px-8 rounded-xl">搜索</n-button>
 								</div>
 							</n-form-item>
 						</n-grid-item>
+
 					</n-grid>
 				</n-form>
 			</n-card>
@@ -284,13 +335,13 @@ onBeforeMount(() => {
 			<n-card title="文章列表" size="small" class="h-1/2">
 				<template #header-extra>
 					<div>
-						<n-button ghost class="md:px-8 sm:px-4 mr-4 rounded-xl">刷新</n-button>
 						<n-button @click="actions.addRow" ghost type="success" class="md:px-8 sm:px-4 mr-4 rounded-xl">新增</n-button>
 						<n-button @click="actions.deleteRows" ghost type="error" class="sm:px-4 md:px-8 rounded-xl">删除</n-button>
 					</div>
 				</template>
 				<n-config-provider>
 					<n-data-table
+              :loading="loading"
 							:columns="tableData.columns"
 							:data="tableData.data"
 							:bordered="false"
@@ -302,6 +353,24 @@ onBeforeMount(() => {
 				</n-config-provider>
 			</n-card>
 		</div>
+    <n-modal v-model:show="showModal">
+      <n-card
+          style="width: 600px"
+          title="模态框"
+          :bordered="false"
+          size="huge"
+          role="dialog"
+          aria-modal="true"
+      >
+        <template #header-extra>
+          噢！
+        </template>
+        内容
+        <template #footer>
+          尾部
+        </template>
+      </n-card>
+    </n-modal>
 	</div>
 </template>
 

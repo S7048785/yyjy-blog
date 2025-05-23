@@ -4,7 +4,9 @@ import { RouterLink, RouterView } from 'vue-router'
 
 <template>
 	<n-message-provider :max="1">
+    <n-dialog-provider>
 		<RouterView />
+    </n-dialog-provider>
 	</n-message-provider>
 </template>
 

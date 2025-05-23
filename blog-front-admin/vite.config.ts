@@ -6,8 +6,20 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 import {NaiveUiResolver} from "unplugin-vue-components/resolvers";
 import Components from 'unplugin-vue-components/vite'
 import AutoImport from 'unplugin-auto-import/vite'
+
+const apiUrl = process.env.VITE_APP_API_URL;
 // https://vite.dev/config/
 export default defineConfig({
+  server: {
+
+    proxy: {
+      '/api': {
+        target: apiUrl,
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
+    }
+  },
   plugins: [
     vue(),
     vueDevTools(),
