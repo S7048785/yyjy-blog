@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yyjy.mapper.ArticleMapper">
+    <select id="articleColPage" resultType="com.yyjy.domain.vo.response.ArticleColRes">
+        select
+            a.id as `id`,
+            a.title as `title`,
+            c.name as `category`,
+            a.create_time as `date`,
+            a.status as `status`,
+            GROUP_CONCAT(t.name SEPARATOR ',') AS `tags`
+        from article as a
+            left join article_tag as at on a.id = at.article_id
+            left join tag as t on at.tag_id = t.id
+            left join category as c on a.category_id = c.id
+        <where>
+            a.del_flag = 0 and a.create_time &lt;= #{end}
+            <if test="begin != null">
+                and a.create_time &gt;= #{begin}
+            </if>
+            <if test="id != null">
+                and a.id = #{id}
+            </if>
+            <if test="title != null and title != ''">
+                and a.title like concat('%',#{title},'%')
+            </if>
+            <if test="category != null">
+                and c.id = #{category}
+            </if>
+            <if test="status != null">
+                and a.status = #{status}
+            </if>
+
+        </where>
+        group by a.id
+            <if test="tags != null and tags.size() > 0">
+                having
+                <foreach collection="tags" item="tag" separator="or" close="">
+                    tags like concat('%',#{tag},'%')
+                </foreach>
+            </if>
+        order by a.create_time desc
+    </select>
+</mapper>
