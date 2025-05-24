@@ -4,4 +4,5 @@ spring:
 
 blog:
   ip: 47.111.151.165
+  url: http://${blog.ip}:8080
   adminName: 陈九`

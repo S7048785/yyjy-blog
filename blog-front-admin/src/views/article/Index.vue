@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import {NTag, NButton, zhCN, dateZhCN, type DataTableColumns} from "naive-ui"
-import {getArticleList, deleteArticle, deleteArticleBatch} from "@/api/article.ts";
+import {NTag, NButton, zhCN, dateZhCN, type DataTableColumns, type UploadFileInfo } from "naive-ui"
+import {getArticleList, deleteArticle, deleteArticleBatch, getArticleDetail, saveArticle, updateArticle} from "@/api/article.ts";
 import {getCategoryList} from "@/api/category.ts";
 import request from "@/utils/request.ts";
 import type {ArticleCol} from "@/interface/request/article.ts";
-import type {ArticleColumn} from "@/interface/response/article.ts";
+import type {ArticleColumn, ArticleDetail} from "@/interface/response/article.ts";
+import { MdEditor } from 'md-editor-v3';
+import 'md-editor-v3/lib/style.css';
+const url = import.meta.env.VITE_APP_API_URL;
+
 
 // 新增和编辑数据的表单弹窗
 const showModal = ref(false);
@@ -16,42 +20,8 @@ const msg = useMessage();
 const dialog = useDialog()
 const formRef = ref(null);
 // 分类数据
-const categoryOptions = ref<any[]>([
-	// {
-	// 	label: '技术',
-	// 	value: '0',
-	// },
-	// {
-	// 	label: '生活',
-	// 	value: '1',
-	// },
-	// {
-	// 	label: '日志',
-	// 	value: '3',
-	// },
-	// {
-	// 	label: '项目',
-	// 	value: '4',
-	// },
-	// {
-	// 	label: '其他',
-	// 	value: '5',
-	// }
-])
-// 选择分类时触发回调
-const searchCategory = async () => {
-  if (categoryOptions.value.length > 0) {
-    return;
-  }
-  loading.value = true;
-  (await getCategoryList()).data.forEach((item: any) => {
-    categoryOptions.value.push({
-      label: item.name,
-      value: item.id
-    })
-  })
-  loading.value = false
-}
+const categoryOptions = ref<any[]>([])
+
 // 状态数据
 const statusOptions = ref([{label: '已发布', value: '0'}, {label: '草稿', value: '1'}])
 
@@ -64,7 +34,6 @@ const queryFormValue = reactive({
   date: [1746028800000, Date.now()],
 	status: null
 } as any);
-window.queryFormValue = queryFormValue
 // 表单校验规则
 const rules = {
 	id: {
@@ -174,7 +143,6 @@ const pagination = reactive({
 	}
 })
 
-
 // 表格行键 以id作为键
 const rowKey = (row: ArticleColumn) => row.id;
 
@@ -186,7 +154,7 @@ const handleCheck = (rowKeys: any) => {
 	checkedRowKeysRef.value = rowKeys
 }
 
-
+const mode = ref('')
 // 操作元素
 const actions = {
   queryData: async () => {
@@ -204,7 +172,7 @@ const actions = {
     tableData.data = res.data
     loading.value = false
   },
-  resetForm: () => {
+  resetQueryForm: () => {
     queryFormValue.id = null
     queryFormValue.title = null
     queryFormValue.category = null
@@ -212,12 +180,41 @@ const actions = {
     queryFormValue.date = [new Date(1746028800000), new Date()]
     queryFormValue.status = null
   },
+  resetArticleDetailForm: () => {
+    articleDetailForm.id = ''
+    articleDetailForm.title = ''
+    articleDetailForm.content = ''
+    articleDetailForm.summary = ''
+    articleDetailForm.categoryId = null
+    articleDetailForm.thumbnail = ''
+    articleDetailForm.tags = []
+    articleDetailForm.status = null
+  },
+  // 点击新增按钮的回调
 	addRow: () => {
 		// TODO 跳转添加页面
+    mode.value = '新增文章'
+    // 清空表单
+    actions.resetArticleDetailForm()
     showModal.value = true
 	},
-	editRow: (row: any) => {
+
+  // 点击编辑按钮的回调
+	editRow: async (row: any) => {
 		// TODO 跳转编辑页面
+    mode.value = '编辑文章'
+    const res: any = (await getArticleDetail(row.id)).data
+    articleDetailForm.id = res.id;
+    articleDetailForm.title = res.title
+
+    articleDetailForm.content = res.content
+    articleDetailForm.summary = res.summary
+    articleDetailForm.categoryId = categoryOptions.value.find((item: any) => item.value === res.categoryId).label
+    articleDetailForm.thumbnail = res.thumbnail
+    articleDetailForm.tags = res.tags?.split(',') || []
+    articleDetailForm.status = res.status
+
+    showModal.value = true
 	},
 	deleteRow: async (row: ArticleColumn) => {
     dialog.warning({
@@ -232,11 +229,14 @@ const actions = {
         }
       }
     })
-    // await deleteArticle(row.id);
-    // msg.success('删除成功');
 	},
 	deleteRows: async () => {
 		// TODO 批量删除
+    if (checkedRowKeysRef.value.length === 0) {
+      msg.warning('请选择要删除的文章')
+      return
+    }
+
     dialog.warning({
       title: '警告',
       content: `确定要删除选中的 ${checkedRowKeysRef.value.length} 条数据吗？`,
@@ -252,16 +252,83 @@ const actions = {
 	}
 }
 
+// 执行保存或修改 操作
+const saveOrUpdate = async () => {
+  loading.value = true
+  if (mode.value === '新增文章') {
+    const res: any = await saveArticle(articleDetailForm);
+    loading.value = false
+    if (res.code === 1) {
+      msg.success('发布成功');
+      showModal.value = false
+    } else {
+      msg.error(res.msg);
+      return;
+    }
+  } else {
+    const res: any = await updateArticle({
+      id: articleDetailForm.id,
+      title: articleDetailForm.title,
+      summary: articleDetailForm.summary,
+      content: articleDetailForm.content,
+      categoryId: categoryOptions.value.find((item: any) => item.label === articleDetailForm.categoryId).value,
+      status: articleDetailForm.status,
+      thumbnail: articleDetailForm.thumbnail,
+      tags: articleDetailForm.tags
+    })
+    loading.value = false
+    if (res.code === 1) {
+      msg.success('修改成功');
+      showModal.value = false
+    }else {
+      msg.error(res.msg);
+      return;
+    }
+  }
+  const res: any = await request.get('/article/list')
+  tableData.data = res.data
+}
+
+// 返回行类名
 function rowClassName(row: any) {
 	return 'center'
+}
+
+// 文章详情 表单
+const articleDetailForm = reactive<ArticleDetail>({
+  id: '',
+  title: '',
+  summary: '',
+  content: '',
+  categoryId: null,
+  status: null,
+  thumbnail: null,
+  tags: []
+})
+
+window.articleDetailForm = articleDetailForm
+// 上传图片成功后报错返回的url
+const handleFinish = ({file, event}: {file: UploadFileInfo, event: any}) => {
+  articleDetailForm.thumbnail = event.target.response;
 }
 
 onBeforeMount(async () => {
   loading.value = true
   const res: any = await request.get('/article/list')
   tableData.data = res.data
-	// TODO 请求分类数据
+  loading.value = false
 
+  // 获取分类列表数据
+  if (categoryOptions.value.length > 0) {
+    return;
+  }
+  loading.value = true;
+  (await getCategoryList()).data.forEach((item: any) => {
+    categoryOptions.value.push({
+      label: item.name,
+      value: item.id
+    })
+  })
   loading.value = false
 })
 </script>
@@ -300,8 +367,7 @@ onBeforeMount(async () => {
                 <n-select v-model:value="queryFormValue.category"
                           :options="categoryOptions"
                           placeholder="请选择分类"
-                          :loading="loading"
-                          @focus="searchCategory"></n-select>
+                          :loading="loading"></n-select>
               </n-form-item>
             </n-grid-item>
             <n-grid-item>
@@ -315,13 +381,13 @@ onBeforeMount(async () => {
             </n-grid-item>
             <n-grid-item>
             <n-form-item label-width="auto" label="标签" path="tags">
-              <n-dynamic-tags v-model:value="queryFormValue.tags" />
+              <n-dynamic-tags v-model:value="queryFormValue.tags" :max="3"/>
             </n-form-item>
           </n-grid-item>
 						<n-grid-item span="2">
 							<n-form-item class="flex justify-end">
 								<div>
-									<n-button @click="actions.resetForm" class="mr-4 px-8 rounded-xl">重置</n-button>
+									<n-button @click="actions.resetQueryForm" class="mr-4 px-8 rounded-xl">重置</n-button>
 									<n-button @click="actions.queryData" class="px-8 rounded-xl">搜索</n-button>
 								</div>
 							</n-form-item>
@@ -355,19 +421,60 @@ onBeforeMount(async () => {
 		</div>
     <n-modal v-model:show="showModal">
       <n-card
-          style="width: 600px"
-          title="模态框"
+          style="width: 90vw; margin-block: 50px"
+          :title="mode"
           :bordered="false"
           size="huge"
           role="dialog"
           aria-modal="true"
       >
         <template #header-extra>
-          噢！
+          <n-button  @click="showModal = false" >关闭</n-button>
         </template>
-        内容
+        <n-form>
+          <n-form-item label="标题" label-style="font-weight: bold; font-size: 1.2rem;">
+            <n-input v-model:value="articleDetailForm.title" placeholder="请输入标题"/>
+          </n-form-item>
+          <n-form-item label="摘要" label-style="font-weight: bold; font-size: 1.2rem;">
+            <n-input v-model:value="articleDetailForm.summary" placeholder="请输入摘要"/>
+          </n-form-item>
+            <n-form-item class="mr-8" label="分类" label-style="font-weight: bold; font-size: 1.2rem;">
+              <n-select
+                  v-model:value="articleDetailForm.categoryId"
+                  :loading="loading"
+                  :options="categoryOptions"
+                  placeholder="请选择分类"></n-select>
+            </n-form-item>
+            <n-form-item label="标签" label-style="font-weight: bold; font-size: 1.2rem;">
+              <n-dynamic-tags v-model:value="articleDetailForm.tags as string[]" :color="{
+               borderColor: '#28c388',
+               textColor: '#008c8c'
+              }" :max="3"/>
+            </n-form-item>
+          <n-form-item label-width="auto" label="状态"  label-style="font-weight: bold; font-size: 1.2rem;" path="status">
+            <n-select v-model:value="articleDetailForm.status" :options="statusOptions"
+                      placeholder="请选择状态"></n-select>
+          </n-form-item>
+            <n-form-item label="图片" label-style="font-weight: bold; font-size: 1.2rem;">
+              <n-upload
+                  :action="`${url}/upload/image`"
+                  @finish="handleFinish"
+                  accept="image/*"
+                  :max="1"
+                  :default-file-list="articleDetailForm.thumbnail ? [{
+                    url: articleDetailForm.thumbnail
+                  }] : []"
+                  list-type="image-card"
+              >
+                点击上传
+              </n-upload>
+            </n-form-item>
+          <n-form-item label="内容" label-style="font-weight: bold; font-size: 1.2rem;">
+            <MdEditor v-model="articleDetailForm.content" />
+          </n-form-item>
+        </n-form>
         <template #footer>
-          尾部
+            <n-button @click="saveOrUpdate" class="px-8 rounded-xl block ml-auto">确定</n-button>
         </template>
       </n-card>
     </n-modal>

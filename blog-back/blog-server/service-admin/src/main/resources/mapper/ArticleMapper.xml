@@ -41,4 +41,22 @@
             </if>
         order by a.create_time desc
     </select>
+
+    <select id="getArticleDetailById" resultType="com.yyjy.domain.vo.response.ArticleDetailRes">
+        select
+            a.id as `id`,
+            a.title as `title`,
+            a.summary as `summary`,
+            a.content as `content`,
+            c.id as `category_id`,
+            a.status as `status`,
+            a.thumbnail as `thumbnail`,
+            GROUP_CONCAT(t.name SEPARATOR ',') AS `tags`
+        from article as a
+             left join article_tag as at on a.id = at.article_id
+             left join tag as t on at.tag_id = t.id
+             left join category as c on a.category_id = c.id
+        where a.id = #{id}
+        group by a.id
+    </select>
 </mapper>

@@ -87,7 +87,7 @@ public class MinioUtils {
         .contentType(file.getContentType())
         .build());
       log.info("上传文件成功");
-      return bucketName + fileName;
+      return bucketName + "/" + fileName;
     } catch (Exception e) {
       e.printStackTrace();
       log.error("上传文件失败");

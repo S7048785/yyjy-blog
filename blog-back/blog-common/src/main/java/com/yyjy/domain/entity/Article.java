@@ -49,7 +49,7 @@ public class Article implements Serializable {
     @TableField("view_count")
     private Long viewCount;
 
-    @TableField(condition = "create_time", fill = FieldFill.INSERT)
+    @TableField("create_time")
     private String createTime;
 
     @TableField("update_time")

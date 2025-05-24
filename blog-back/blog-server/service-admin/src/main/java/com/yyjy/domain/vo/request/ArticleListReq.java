@@ -29,5 +29,5 @@ public class ArticleListReq {
 	private LocalDate begin;
 
 	@Schema(description = "文章结束时间")
-	private LocalDate end = LocalDate.now();
+	private LocalDate end = LocalDate.now().plusDays(1);
 }

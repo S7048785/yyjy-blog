@@ -33,7 +33,7 @@ public class Photo implements Serializable {
     private String path;
 
     @Schema(description = "创建时间")
-    @TableField(value = "create_time" ,fill = FieldFill.INSERT)
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
 }

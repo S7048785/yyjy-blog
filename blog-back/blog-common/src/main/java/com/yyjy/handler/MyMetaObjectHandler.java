@@ -12,8 +12,8 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
     @Override
     public void insertFill(MetaObject metaObject) {
         // 设置创建时间和创建人
-        this.strictInsertFill(metaObject, "createdTime", LocalDateTime.class, LocalDateTime.now());
-        this.strictUpdateFill(metaObject, "updatedTime", LocalDateTime.class, LocalDateTime.now());
+        this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, LocalDateTime.now());
+        this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
         // 如果有其他需要在插入时填充的字段，可以继续添加
     }
 

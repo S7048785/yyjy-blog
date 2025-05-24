@@ -12,6 +12,7 @@ import com.yyjy.domain.entity.Tag;
 import com.yyjy.domain.vo.request.ArticleDetailReq;
 import com.yyjy.domain.vo.request.ArticleListReq;
 import com.yyjy.domain.vo.response.ArticleColRes;
+import com.yyjy.domain.vo.response.ArticleDetailRes;
 import com.yyjy.service.ArticleService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ArticleServiceImpl implements ArticleService {
@@ -30,23 +33,38 @@ public class ArticleServiceImpl implements ArticleService {
 	@Resource
 	private TagDao tagDao;
 
+	/**
+	 * 获取文章列表
+	 * @param req
+	 */
 	@Override
 	public List<ArticleColRes> list(ArticleListReq req) {
 		return articleDao.list(req);
 	}
 
+	/**
+	 * 删除文章
+	 * @param id
+	 */
 	@Override
 	public Boolean removeById(Long id) {
 		return articleDao.update(Wrappers.lambdaUpdate(Article.class)
 				.eq(Article::getId, id)
 				.set(Article::getDelFlag, 1));
+		// TODO 删除缓存
 	}
 
+	/**
+	 * 批量删除文章
+	 * @param ids
+	 */
 	@Override
 	public Boolean removeBatchByIds(List<Long> ids) {
 		return articleDao.update(Wrappers.lambdaUpdate(Article.class)
 				.set(Article::getDelFlag, 1)
 				.in(Article::getId, ids));
+
+		// TODO 更新缓存
 	}
 
 	/**
@@ -76,6 +94,7 @@ public class ArticleServiceImpl implements ArticleService {
 
 		// 转换并保存文章主体信息
 		Article article = BeanUtil.copyProperties(req, Article.class);
+		article.setCreateTime(String.valueOf(Math.floor(System.currentTimeMillis() / 1000)));
 		articleDao.save(article);
 
 		List<ArticleTag> articleTagList = new ArrayList<>(tagList.size());
@@ -83,5 +102,55 @@ public class ArticleServiceImpl implements ArticleService {
 			articleTagList.add(new ArticleTag().setArticleId(article.getId()).setTagId(tag.getId()));
 		});
 		articleTagDao.saveBatch(articleTagList);
+
+		// TODO 更新缓存
+	}
+
+	/**
+	 * 获取文章详情
+	 * @param id
+	 * @return
+	 */
+	@Override
+	public ArticleDetailRes getById(Long id) {
+		return articleDao.getById(id);
+	}
+
+	/**
+	 * 修改文章及其标签信息
+	 * @param req
+	 */
+	@Transactional
+	@Override
+	public void updateById(ArticleDetailReq req) {
+		// 查询所有标签
+		List<Tag> list = tagDao.list(Wrappers.lambdaQuery(Tag.class));
+		List<String> tagAll = list.stream().map(item -> item.getName().toLowerCase()).toList();
+
+		// 删除该文章的所有标签关系
+		articleTagDao.remove(Wrappers.lambdaQuery(ArticleTag.class)
+				.eq(ArticleTag::getArticleId, req.getId()));
+
+		// 更新文章标签
+		List<Tag> tagList = new ArrayList<>();
+		List<String> tagList1 = new ArrayList<>();
+		req.getTags().forEach(tagName -> {
+			if (!tagAll.contains(tagName.toLowerCase())) {
+				tagList.add(new Tag().setName(tagName));
+			} else {
+				tagList1.add(tagName);
+			}
+		});
+		tagDao.saveOrUpdateBatch(tagList);
+
+		List<Tag> list1 = tagDao.list(Wrappers.lambdaQuery(Tag.class).in(Tag::getName, tagList1));
+		articleTagDao.saveBatch(list1.stream().map(tag -> new ArticleTag().setArticleId(req.getId()).setTagId(tag.getId())).toList());
+
+		articleTagDao.saveBatch(tagList.stream().map(tag -> new ArticleTag().setArticleId(req.getId()).setTagId(tag.getId())).toList());
+
+		Article article = BeanUtil.copyProperties(req, Article.class);
+		articleDao.updateById(article);
+
+		// TODO 删除缓存
 	}
 }

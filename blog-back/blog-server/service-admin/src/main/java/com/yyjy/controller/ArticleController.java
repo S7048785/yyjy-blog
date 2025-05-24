@@ -4,6 +4,7 @@ package com.yyjy.controller;
 import com.yyjy.domain.vo.request.ArticleDetailReq;
 import com.yyjy.domain.vo.request.ArticleListReq;
 import com.yyjy.domain.vo.response.ArticleColRes;
+import com.yyjy.domain.vo.response.ArticleDetailRes;
 import com.yyjy.result.Result;
 import com.yyjy.service.ArticleService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,6 +48,20 @@ public class ArticleController {
 	@PostMapping
 	public Result<Void> add(@RequestBody @Validated ArticleDetailReq req) {
 		articleService.save(req);
+		return Result.ok();
+	}
+
+	@Operation(summary = "获取文章详情")
+	@GetMapping("/{id}")
+	public Result<ArticleDetailRes> get(@PathVariable Long id) {
+		ArticleDetailRes res = articleService.getById(id);
+		return Result.ok(res);
+	}
+
+	@Operation(summary = "修改文章")
+	@PutMapping
+	public Result<Void> update(@RequestBody @Validated ArticleDetailReq req) {
+		articleService.updateById(req);
 		return Result.ok();
 	}
 }

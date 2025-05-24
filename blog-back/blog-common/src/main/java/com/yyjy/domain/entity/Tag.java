@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -32,9 +33,5 @@ public class Tag implements Serializable {
     private String name;
 
     @TableField(condition = "create_time", fill = FieldFill.INSERT)
-    private String createTime;
-
-    @Schema(description = "删除标志（0代表未删除，1代表已删除）")
-    @TableField(value = "del_flag", exist = false)
-    private Integer delFlag;
+    private LocalDateTime createTime;
 }

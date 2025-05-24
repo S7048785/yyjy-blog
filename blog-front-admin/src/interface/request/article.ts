@@ -7,11 +7,3 @@ export interface ArticleCol {
 	date: Date[]
 }
 
-export interface ArticleDetail {
-	title: string;
-	content: string;
-	summary: string;
-	categoryId: number;
-	thumbnail: string;
-	tags: string[];
-}
