@@ -3,5 +3,5 @@ spring:
     active: dev
 
 blog:
-  ip: 47.111.151.165
+  ip: 
   adminName: 陈九`
