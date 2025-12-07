@@ -6,8 +6,8 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://${blog.ip}:3306/blog?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC
-    username: root
-    password: ma7p28itxK38s4RB
+    username: 
+    password: 
     # 单个文件最大 5MBmax-file-size=5MB
   # 总请求最大 10MB=1MB
   servlet:
@@ -43,6 +43,6 @@ springdoc:
 
 minio:
   endpoint: http://${blog.ip}:9000
-  access-key: 1Fl2gM0wwlvoWnXeHD94
-  secret-key: JtwECGOR5F71Bn3GiBh5s9gOlcXco299tYiMl3BU
-  bucket: blog
+  access-key: 
+  secret-key: 
+  bucket: 
