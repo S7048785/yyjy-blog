@@ -3,6 +3,6 @@ spring:
     active: dev
 
 blog:
-  ip: 47.111.151.165
+  ip: 
   url: http://${blog.ip}:8080
   adminName: 陈九`
